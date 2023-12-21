@@ -76,7 +76,7 @@ int Program::run(int argc, char* argv[])
 		change_write_file(outFileName.value());
 	}
 
-	parse_source(input);
+	parse_source(input, make_shared<Environment>());
 	return 0;
 }
 
@@ -91,13 +91,18 @@ void Program::change_write_file(const string& fileName)
 	_out = &_outFile;
 }
 
-void Program::parse_source(const string& input)
+void Program::parse_source(const string& input, const shared_ptr<Environment>& env)
 {
 	auto lexer = make_shared<li::Lexer>(input);
 	auto parser = make_shared<li::Parser>(lexer);
 	auto program = parser->parseProgram();
 	auto evaluator = make_shared<li::Evaluator>();
-	auto obj = evaluator->evaluate(program);
+	auto obj = evaluator->evaluate(program, env);
+	if (obj->type() == Object::Type::Null)
+	{
+		return;
+	}
+
 	*_out << obj->inspect() << '\n';
 }
 
@@ -123,6 +128,7 @@ int Program::repl()
 {
 	string input;
 	const string PROMPT = ">> ";
+	auto env = make_shared<Environment>();
 	
 	cout << "Welcome to lighzy-interpreter! \n";
 	cout << PROMPT;
@@ -133,7 +139,7 @@ int Program::repl()
 			break;
 		}
 
-		parse_source(input);
+		parse_source(input, env);
 		cout << PROMPT;
 	}
 

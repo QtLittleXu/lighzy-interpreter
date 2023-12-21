@@ -2,6 +2,7 @@
 
 #include <argparse/argparse.hpp>
 #include <fstream>
+#include "object/Environment.hpp"
 
 namespace li::program
 {
@@ -19,7 +20,7 @@ private:
 	string read_file(const string& fileName);
 	void change_write_file(const string& fileName);
 	string get_source_file_name();
-	void parse_source(const string& input);
+	void parse_source(const string& input, const shared_ptr<Environment>& env);
 	int repl();
 
 private:

@@ -16,8 +16,9 @@ shared_ptr<Object> initEvaluator(const string& input)
 	auto parser = make_shared<Parser>(lexer);
 	auto program = parser->parseProgram();
 	auto evaluator = make_shared<Evaluator>();
+	auto env = make_shared<Environment>();
 
-	return evaluator->evaluate(program);
+	return evaluator->evaluate(program, env);
 }
 
 void testInteger(const shared_ptr<Object>& obj, int64_t value)
