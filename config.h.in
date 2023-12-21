@@ -1,0 +1,6 @@
+#pragma once
+
+#define PROJECT_VERSION "${PROJECT_VERSION}"
+#define EXECUTABLE_NAME "${LI_EXECUTABLE}"
+
+#define EXECUTABLE_DESCRIPTION "lighzy-interpreter is a simple interpreter for Lighzy language"
