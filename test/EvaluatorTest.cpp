@@ -169,13 +169,35 @@ TEST(ParserTest, evaluateError)
 		{ "1 + true", "error - infix operand type mismatch: integer + bool" },
 		{ "true + 1; 1 + 1", "error - infix operand type mismatch: bool + integer" },
 		{ "true + false", "error - unknown infix operator: bool + bool" },
-		{ "if (11 > 2) { return true * false } return 1", "error - unknown infix operator: bool * bool" }
+		{ "if (11 > 2) { return true * false } return 1", "error - unknown infix operator: bool * bool" },
+		{ "a", "error - identifier not found: a" },
+		{ "1 + temp", "error - identifier not found: temp" }
 	};
 
 	for (const auto& [input, error] : tests)
 	{
 		SCOPED_TRACE(input);
 		testError(initEvaluator(input), error);
+	}
+}
+
+TEST(ParserTest, evaluateLet)
+{
+	struct Expected
+	{
+		string input;
+		int64_t value;
+	} tests[] = {
+		{ "let a = 1; a", 1 },
+		{ "let a = 5 * 5; a", 25 },
+		{ "let a = 2; let b = a; b", 2 },
+		{ "let a = 11; let b = 22; let c = a + b - 1; c", 32 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testInteger(initEvaluator(input), value);
 	}
 }
 
