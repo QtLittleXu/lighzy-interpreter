@@ -10,7 +10,9 @@
 #include "ast/PrefixExpression.hpp"
 #include "ast/InfixExpression.hpp"
 #include "ast/ReturnStatement.hpp"
+#include "ast/FunctionExpression.hpp"
 #include "ast/LetStatement.hpp"
+#include "ast/CallExpression.hpp"
 
 namespace li
 {
@@ -67,35 +69,35 @@ shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& val
 		return bool_false;
 	}
 	
-	return prefix_operand_type_error("!", value->typeName());
+	return prefix_operand_type("!", value->typeName());
 }
 
 shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& value)
 {
 	if (value->type() != Object::Type::Integer)
 	{
-		return prefix_operand_type_error("-", value->typeName());
+		return prefix_operand_type("-", value->typeName());
 	}
 
 	auto cast = dynamic_pointer_cast<Integer>(value);
 	return make_shared<Integer>(-cast->value());
 }
 
-shared_ptr<Object> Evaluator::prefix_operand_type_error(const string& operatorName, const string& right)
+shared_ptr<Object> Evaluator::prefix_operand_type(const string& operatorName, const string& right)
 {
 	stringstream buffer;
 	buffer << "error - prefix operand type: " << operatorName << right;
 	return make_shared<Error>(buffer.str());
 }
 
-shared_ptr<Object> Evaluator::unknown_prefix_error(const string& operatorName, const string& right)
+shared_ptr<Object> Evaluator::unknown_prefix(const string& operatorName, const string& right)
 {
 	stringstream buffer;
 	buffer << "error - unknown prefix operator: " << operatorName << right;
 	return make_shared<Error>(buffer.str());
 }
 
-shared_ptr<Object> Evaluator::unknown_infix_error(const string& left, const string& operatorName, const string& right)
+shared_ptr<Object> Evaluator::unknown_infix(const string& left, const string& operatorName, const string& right)
 {
 	stringstream buffer;
 	buffer << "error - unknown infix operator: " << left << " " << operatorName << " " << right;
@@ -116,6 +118,13 @@ shared_ptr<Object> Evaluator::identifier_not_found(const string& name)
 	return make_shared<Error>(buffer.str());
 }
 
+shared_ptr<Object> Evaluator::not_function(const string& type)
+{
+	stringstream buffer;
+	buffer << "error - expected function: " << type;
+	return make_shared<Error>(buffer.str());
+}
+
 shared_ptr<Object> Evaluator::evaluate_prefix(const string& operatorName, const shared_ptr<Object>& right)
 {
 	if (operatorName == "!")
@@ -127,7 +136,7 @@ shared_ptr<Object> Evaluator::evaluate_prefix(const string& operatorName, const 
 		return evaluate_prefix_minus(right);
 	}
 
-	return unknown_prefix_error(operatorName, right->typeName());
+	return unknown_prefix(operatorName, right->typeName());
 }
 
 const shared_ptr<Bool>& Evaluator::bool_to_object(bool value)
@@ -181,7 +190,7 @@ shared_ptr<Object> Evaluator::evaluate_infix_integer(const shared_ptr<Object>& l
 		return bool_to_object(leftValue <= rightValue);
 	}
 
-	return unknown_infix_error(left->typeName(), operatorName, right->typeName());
+	return unknown_infix(left->typeName(), operatorName, right->typeName());
 }
 
 bool Evaluator::is_true(const shared_ptr<Object>& obj)
@@ -217,7 +226,7 @@ shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, con
 		return bool_to_object(left != right);
 	}
 
-	return unknown_infix_error(left->typeName(), operatorName, right->typeName());
+	return unknown_infix(left->typeName(), operatorName, right->typeName());
 }
 
 shared_ptr<Object> Evaluator::evaluate_block(const shared_ptr<BlockStatement>& node, const shared_ptr<Environment>& env)
@@ -258,6 +267,44 @@ shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpression>
 		return identifier_not_found(id->value());
 	}
 	return value;
+}
+
+vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<ExpressionsStatement>& exprs, const shared_ptr<Environment>& env)
+{
+	vector<shared_ptr<Object>> result;
+	for (const auto& expr : exprs->expressions())
+	{
+		auto evaluated = evaluate(expr, env);
+		if (evaluated->type() == Object::Type::Error)
+		{
+			return { evaluated };
+		}
+		result.push_back(evaluated);
+	}
+	return result;
+}
+
+const shared_ptr<Environment> Evaluator::bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects)
+{
+	auto env = make_shared<Environment>(fun->env());
+	for (int i = 0; i < fun->args()->args().size(); i++)
+	{
+		auto id = fun->args()->args().at(i);
+		env->set(id->value(), objects.at(i));
+	}
+	return env;
+}
+
+shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& args)
+{
+	auto innerEnv = bind_fun_args_to_objects(fun, args);
+	auto evaluated = evaluate(fun->body(), innerEnv);
+
+	if (evaluated->type() == Object::Type::ReturnValue)
+	{
+		return dynamic_pointer_cast<ReturnValue>(evaluated)->value();
+	}
+	return evaluated;
 }
 
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
@@ -358,6 +405,34 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 	{
 		auto cast = dynamic_pointer_cast<IdentifierExpression>(node);
 		return evaluate_id(cast, env);
+	}
+
+	case Node::Type::Function:
+	{
+		auto cast = dynamic_pointer_cast<FunctionExpression>(node);
+		return make_shared<Function>(cast->args(), cast->body(), env);
+	}
+
+	case Node::Type::Call:
+	{
+		auto cast = dynamic_pointer_cast<CallExpression>(node);
+		auto fun = evaluate(cast->fun(), env);
+		if (fun->type() == Object::Type::Error)
+		{
+			return fun;
+		}
+		if (fun->type() != Object::Type::Function)
+		{
+			return not_function(fun->typeName());
+		}
+
+		auto args = evaluate_exprs(cast->exprs(), env);
+		if (args.size() == 1 && args.at(0)->type() == Object::Type::Error)
+		{
+			return args.at(0);
+		}
+		
+		return evaluate_fun(dynamic_pointer_cast<Function>(fun), args);
 	}
 
 	default:

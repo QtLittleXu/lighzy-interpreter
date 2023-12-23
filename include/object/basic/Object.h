@@ -11,7 +11,7 @@ class Object
 public:
 	enum class Type
 	{
-		Null, Integer, Bool, ReturnValue, Error
+		Null, Integer, Bool, ReturnValue, Error, Function
 	};
 
 public:
