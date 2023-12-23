@@ -5,6 +5,7 @@
 #include "object/Integer.hpp"
 #include "object/Bool.hpp"
 #include "object/Error.hpp"
+#include "object/Function.hpp"
 
 namespace li::test
 {
@@ -193,6 +194,39 @@ TEST(ParserTest, evaluateLet)
 		{ "let a = 5 * 5; a", 25 },
 		{ "let a = 2; let b = a; b", 2 },
 		{ "let a = 11; let b = 22; let c = a + b - 1; c", 32 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testInteger(initEvaluator(input), value);
+	}
+}
+
+TEST(ParserTest, evaluateFunction)
+{
+	string input = "fun(x) { x + 2 }";
+	auto evaluated = initEvaluator(input);
+
+	ASSERT_EQ(evaluated->typeName(), "function");
+	auto cast = dynamic_pointer_cast<Function>(evaluated);
+
+	EXPECT_EQ(cast->args()->args().size(), 1);
+	EXPECT_EQ(cast->body()->toString(), "{ (x + 2);  }");
+}
+
+TEST(ParserTest, evaluateCall)
+{
+	struct Expected
+	{
+		string input;
+		int64_t value;
+	} tests[] = {
+		{ "let call = fun(x) { x }; call(5)", 5 },
+		{ "let call = fun(x) { return x }; call(5)", 5 },
+		{ "let double = fun(x) { x * 2 }; double(5)", 10 },
+		{ "let add = fun(a, b) { a + b }; add(1, 1)", 2 },
+		{ "let add = fun(a, b) { a + b }; add(add(1, 2), add(2, 3))", 8 }
 	};
 
 	for (const auto& [input, value] : tests)
