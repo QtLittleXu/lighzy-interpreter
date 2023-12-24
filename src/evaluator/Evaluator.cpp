@@ -4,6 +4,7 @@
 #include "object/Integer.hpp"
 #include "object/Error.hpp"
 #include "object/ReturnValue.hpp"
+#include "object/String.hpp"
 #include "ast/IntegerExpression.hpp"
 #include "ast/ExpressionStatement.hpp"
 #include "ast/BoolExpression.hpp"
@@ -13,6 +14,7 @@
 #include "ast/FunctionExpression.hpp"
 #include "ast/LetStatement.hpp"
 #include "ast/CallExpression.hpp"
+#include "ast/StringExpression.hpp"
 
 namespace li
 {
@@ -206,6 +208,27 @@ bool Evaluator::is_true(const shared_ptr<Object>& obj)
 	return true;
 }
 
+shared_ptr<Object> Evaluator::evaluate_infix_string(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
+{
+	auto leftValue = dynamic_pointer_cast<String>(left)->value();
+	auto rightValue = dynamic_pointer_cast<String>(right)->value();
+
+	if (operatorName == "+")
+	{
+		return make_shared<String>(leftValue + rightValue);
+	}
+	if (operatorName == "==")
+	{
+		bool_to_object(leftValue == rightValue);
+	}
+	if (operatorName == "!=")
+	{
+		bool_to_object(leftValue != rightValue);
+	}
+
+	return unknown_infix(left->typeName(), operatorName, right->typeName());
+}
+
 shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
 {
 	if (left->type() != right->type())
@@ -213,9 +236,13 @@ shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, con
 		return infix_operand_type_mismatch(left->typeName(), operatorName, right->typeName());
 	}
 
-	if (left->type() == Object::Type::Integer && right->type() == Object::Type::Integer)
+	if (left->type() == Object::Type::Integer)
 	{
 		return evaluate_infix_integer(left, operatorName, right);
+	}
+	if (left->type() == Object::Type::String)
+	{
+		return evaluate_infix_string(left, operatorName, right);
 	}
 	if (operatorName == "==")
 	{
@@ -433,6 +460,12 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 		}
 		
 		return evaluate_fun(dynamic_pointer_cast<Function>(fun), args);
+	}
+
+	case Node::Type::String:
+	{
+		auto cast = dynamic_pointer_cast<StringExpression>(node);
+		return make_shared<String>(cast->value());
 	}
 
 	default:

@@ -61,6 +61,7 @@ private:
 	shared_ptr<Expression> parse_bool();
 	shared_ptr<Expression> parse_if();
 	shared_ptr<Expression> parse_function();
+	shared_ptr<Expression> parse_string();
 
 	shared_ptr<Expression> parse_infix(const shared_ptr<Expression>& left);
 	shared_ptr<Expression> parse_call(const shared_ptr<Expression>& fun);
@@ -80,6 +81,7 @@ private:
 		{ Token::True,				bind(&Parser::parse_bool, this) },
 		{ Token::False,				bind(&Parser::parse_bool, this) },
 		{ Token::If,				bind(&Parser::parse_if, this) },
+		{ Token::String,			bind(&Parser::parse_string, this) },
 		{ Token::Fun,				bind(&Parser::parse_function, this) }
 	};
 

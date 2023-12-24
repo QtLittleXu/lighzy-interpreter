@@ -11,7 +11,10 @@ class Node
 public:
     enum class Type
     {
-        Program, Expression, Statement, Let, Return, Arguments, Expressions, Block, Call, Function, ExpressionStatement, Identifier, Integer, Bool, Infix, Prefix, If
+        Program, Expression, Statement,
+        Let, Return, Arguments, Expressions, Block,
+        Call, Function, ExpressionStatement, Identifier,
+        Integer, Bool, Infix, Prefix, If, String
     };
 
 public:

@@ -6,6 +6,7 @@
 #include "object/Bool.hpp"
 #include "object/Error.hpp"
 #include "object/Function.hpp"
+#include "object/String.hpp"
 
 namespace li::test
 {
@@ -35,6 +36,14 @@ void testBool(const shared_ptr<Object>& obj, bool value)
 	ASSERT_EQ(obj->typeName(), "bool");
 
 	auto cast = dynamic_pointer_cast<Bool>(obj);
+	EXPECT_EQ(cast->value(), value);
+}
+
+void testString(const shared_ptr<Object>& obj, const string& value)
+{
+	ASSERT_EQ(obj->typeName(), "string");
+
+	auto cast = dynamic_pointer_cast<String>(obj);
 	EXPECT_EQ(cast->value(), value);
 }
 
@@ -141,7 +150,7 @@ TEST(EvalautorTest, evaluateIf)
 	}
 }
 
-TEST(ParserTest, evalauteReturn)
+TEST(EvaluatorTest, evalauteReturn)
 {
 	struct Expected
 	{
@@ -160,7 +169,7 @@ TEST(ParserTest, evalauteReturn)
 	}
 }
 
-TEST(ParserTest, evaluateError)
+TEST(EvaluatorTest, evaluateError)
 {
 	struct Expected
 	{
@@ -173,7 +182,8 @@ TEST(ParserTest, evaluateError)
 		{ "true + false", "error - unknown infix operator: bool + bool" },
 		{ "if (11 > 2) { return true * false } return 1", "error - unknown infix operator: bool * bool" },
 		{ "a", "error - identifier not found: a" },
-		{ "1 + temp", "error - identifier not found: temp" }
+		{ "1 + temp", "error - identifier not found: temp" },
+		{ R"("Hello" - "world!")", "error - unknown infix operator: string - string" }
 	};
 
 	for (const auto& [input, error] : tests)
@@ -183,7 +193,7 @@ TEST(ParserTest, evaluateError)
 	}
 }
 
-TEST(ParserTest, evaluateLet)
+TEST(EvaluatorTest, evaluateLet)
 {
 	struct Expected
 	{
@@ -203,7 +213,7 @@ TEST(ParserTest, evaluateLet)
 	}
 }
 
-TEST(ParserTest, evaluateFunction)
+TEST(EvaluatorTest, evaluateFunction)
 {
 	string input = "fun(x) { x + 2 }";
 	auto evaluated = initEvaluator(input);
@@ -215,7 +225,7 @@ TEST(ParserTest, evaluateFunction)
 	EXPECT_EQ(cast->body()->toString(), "{ (x + 2);  }");
 }
 
-TEST(ParserTest, evaluateCall)
+TEST(EvaluatorTest, evaluateCall)
 {
 	struct Expected
 	{
@@ -233,6 +243,24 @@ TEST(ParserTest, evaluateCall)
 	{
 		SCOPED_TRACE(input);
 		testInteger(initEvaluator(input), value);
+	}
+}
+
+TEST(EvalautorTest, evaluateString)
+{
+	struct Expected
+	{
+		string input;
+		string value;
+	} tests[] = {
+		{ R"("Hello world!")", "Hello world!" },
+		{ R"("Hello" + " " + "world" + "!")", "Hello world!" }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testString(initEvaluator(input), value);
 	}
 }
 

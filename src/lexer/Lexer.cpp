@@ -114,6 +114,10 @@ shared_ptr<Token> Lexer::parseToken()
 		token = make_shared<Token>("/", Token::Slash);
 		break;
 
+	case '"':
+		token = make_shared<Token>(read_string(), Token::String);
+		break;
+
 	default:
 		if (isalpha(_input.at(_pos)))
 		{
@@ -153,19 +157,15 @@ string Lexer::read_identifier()
 
 string Lexer::read_string()
 {
-    string string;
-    if (_input.at(_pos) != '"')
-    {
-        return string;
-    }
-
+    string buffer;
+	_pos++;
     while (_pos < _input.size() && _input.at(_pos) != '"')
     {
-        string += _input.at(_pos);
+        buffer += _input.at(_pos);
         _pos++;
     }
-
-    return string;
+	_pos++;
+    return buffer;
 }
 
 string Lexer::read_number()
