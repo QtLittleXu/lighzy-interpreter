@@ -8,6 +8,7 @@
 #include "ast/IfExpression.hpp"
 #include "ast/FunctionExpression.hpp"
 #include "ast/CallExpression.hpp"
+#include "ast/StringExpression.hpp"
 
 namespace li::test
 {
@@ -165,6 +166,14 @@ void testOperatorPrecedence(const shared_ptr<Expression>& expr, const string& re
 {
     ASSERT_TRUE(expr);
 	EXPECT_EQ(expr->toString(), result);
+}
+
+void testStringExpr(const shared_ptr<Expression>& expr, const string& value)
+{
+	ASSERT_EQ(expr->type(), Node::Type::String);
+	auto cast = dynamic_pointer_cast<StringExpression>(expr);
+
+	EXPECT_EQ(cast->value(), value);
 }
 
 TEST(ParserTest, operatorPrecedence)
@@ -412,6 +421,17 @@ TEST(ParserTest, callExpression)
 
 		ASSERT_NO_FATAL_FAILURE(testCallExpr(statement->expression(), fun, exprs));
 	}
+}
+
+TEST(ParserTest, stringExpression)
+{
+	shared_ptr<Program> program;
+	ASSERT_NO_FATAL_FAILURE(initProgram(program, "\"Hello world!\"", 1));
+
+    auto statement = dynamic_pointer_cast<ExpressionStatement>(program->statements().at(0));
+	ASSERT_TRUE(statement);
+
+	ASSERT_NO_FATAL_FAILURE(testStringExpr(statement->expression(), "Hello world!"));
 }
 
 

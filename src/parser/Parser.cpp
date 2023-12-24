@@ -7,6 +7,7 @@
 #include "ast/IfExpression.hpp"
 #include "ast/FunctionExpression.hpp"
 #include "ast/CallExpression.hpp"
+#include "ast/StringExpression.hpp"
 #include <memory>
 
 namespace li
@@ -331,5 +332,13 @@ shared_ptr<Expression> Parser::parse_call(const shared_ptr<Expression>& fun)
 	return call;
 }
 
+shared_ptr<Expression> Parser::parse_string()
+{
+	auto expr = make_shared<StringExpression>(_current);
+	expr->setValue(_current->literal());
+
+	parse_token();
+	return expr;
+}
 
 }
