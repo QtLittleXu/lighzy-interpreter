@@ -17,6 +17,7 @@ const map<Token::Type, string> Token::_typeNames =
 	{ RBrace,			"right_brace(\"}\")"},
 
 	{ Integer,			"integer" },
+	{ String,			"string" },
 
 	{ Equal,			"equal(\"==\")"},
 	{ NotEqual,			"not_equal(\"!=\")"},

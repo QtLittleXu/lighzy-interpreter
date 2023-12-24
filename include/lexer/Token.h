@@ -19,7 +19,7 @@ public:
 		LBrace, RBrace,
 
 		// types
-		Integer,
+		Integer, String,
 
 		// operators
 		Assign, Equal, NotEqual, Greater, GreaterEqual, Less, LessEqual, LogicalNegation,
