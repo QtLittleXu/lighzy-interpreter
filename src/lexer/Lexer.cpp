@@ -161,6 +161,11 @@ string Lexer::read_string()
 	_pos++;
     while (_pos < _input.size() && _input.at(_pos) != '"')
     {
+		if (_input.at(_pos) == '\n')
+		{
+			return "\n";	// Return linebreak to decide whether expect double quotes
+		}
+
         buffer += _input.at(_pos);
         _pos++;
     }

@@ -471,5 +471,31 @@ TEST(ParserTest, assignExpression)
 	}
 }
 
+TEST(ParserTest, errorHandling)
+{
+	struct Expected
+	{
+		string input;
+		string error;
+	} tests[] = {
+		{ "let a 2", R"(char 7: error: expected token type to be assign("="), but got integer)" },
+		{ "let = 4", R"(char 7: error: expected token type to be identifier, but got assign("="))" }
+	};
+
+	for (const auto& [input, error] : tests)
+	{
+		SCOPED_TRACE(input);
+
+		auto lexer = make_shared<Lexer>(input);
+		auto parser = make_shared<Parser>(lexer);
+		auto program = parser->parseProgram();
+
+		auto statement = dynamic_pointer_cast<ExpressionStatement>(program->statements().at(0));
+		ASSERT_TRUE(statement);
+
+		EXPECT_EQ(parser->outputs().at(0), error);
+	}
+}
+
 
 } // namespace test
