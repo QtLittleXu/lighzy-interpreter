@@ -96,9 +96,20 @@ void Program::parse_source(const string& input, const shared_ptr<Environment>& e
 	auto lexer = make_shared<li::Lexer>(input);
 	auto parser = make_shared<li::Parser>(lexer);
 	auto program = parser->parseProgram();
+
+	if (!parser->outputs().empty())
+	{
+		for (const auto& o : parser->outputs())
+		{
+			cerr << o << '\n';
+		}
+		return;
+	}
+
 	auto evaluator = make_shared<li::Evaluator>();
 	auto obj = evaluator->evaluate(program, env);
-	if (obj->type() == Object::Type::Null)
+	
+	if (!obj || obj->type() == Object::Type::Null)
 	{
 		return;
 	}
