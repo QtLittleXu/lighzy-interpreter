@@ -9,6 +9,7 @@
 #include "ast/FunctionExpression.hpp"
 #include "ast/CallExpression.hpp"
 #include "ast/StringExpression.hpp"
+#include "ast/AssignExpression.hpp"
 
 namespace li::test
 {
@@ -174,6 +175,15 @@ void testStringExpr(const shared_ptr<Expression>& expr, const string& value)
 	auto cast = dynamic_pointer_cast<StringExpression>(expr);
 
 	EXPECT_EQ(cast->value(), value);
+}
+
+void testAssignExpression(const shared_ptr<Expression>& expr, const string& id, const string& value)
+{
+	ASSERT_EQ(expr->type(), Node::Type::Assign);
+	auto cast = dynamic_pointer_cast<AssignExpression>(expr);
+
+	EXPECT_EQ(cast->id()->toString(), id);
+	EXPECT_EQ(cast->value()->toString(), value);
 }
 
 TEST(ParserTest, operatorPrecedence)
@@ -432,6 +442,33 @@ TEST(ParserTest, stringExpression)
 	ASSERT_TRUE(statement);
 
 	ASSERT_NO_FATAL_FAILURE(testStringExpr(statement->expression(), "Hello world!"));
+}
+
+TEST(ParserTest, assignExpression)
+{
+	struct Expected
+	{
+		string input;
+		string id;
+		string value;
+	} tests[] = {
+		{ "test = 2", "test", "2" },
+		{ "num = 12 - 2 / 3", "num", "(12 - (2 / 3))" },
+		{ "test = num = 2", "test", "num = 2" }
+	};
+
+	for (const auto& [input, id, value] : tests)
+	{
+		SCOPED_TRACE(input);
+
+		shared_ptr<Program> program;
+		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+
+		auto statement = dynamic_pointer_cast<ExpressionStatement>(program->statements().at(0));
+		ASSERT_TRUE(statement);
+
+		ASSERT_NO_FATAL_FAILURE(testAssignExpression(statement->expression(), id, value));
+	}
 }
 
 

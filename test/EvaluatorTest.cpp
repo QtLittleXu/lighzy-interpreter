@@ -264,5 +264,25 @@ TEST(EvalautorTest, evaluateString)
 	}
 }
 
+TEST(EvalautorTest, evaluateAssign)
+{
+	struct Expected
+	{
+		string input;
+		int64_t value;
+	} tests[] = {
+		{ "let num = 11; num = 1", 1 },
+		{ "let temp = 0; temp = 2; temp", 2 },
+		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4;", 4 },
+		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testInteger(initEvaluator(input), value);
+	}
+}
+
 
 }

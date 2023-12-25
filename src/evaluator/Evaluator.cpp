@@ -15,6 +15,7 @@
 #include "ast/LetStatement.hpp"
 #include "ast/CallExpression.hpp"
 #include "ast/StringExpression.hpp"
+#include "ast/AssignExpression.hpp"
 
 namespace li
 {
@@ -466,6 +467,25 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 	{
 		auto cast = dynamic_pointer_cast<StringExpression>(node);
 		return make_shared<String>(cast->value());
+	}
+
+	case Node::Type::Assign:
+	{
+		auto cast = dynamic_pointer_cast<AssignExpression>(node);
+		auto id = evaluate(cast->id(), env);
+		auto value = evaluate(cast->value(), env);
+		if (id->type() == Object::Type::Error)
+		{
+			return id;
+		}
+		if (value->type() == Object::Type::Error)
+		{
+			return value;
+		}
+
+		string name = dynamic_pointer_cast<IdentifierExpression>(cast->id())->value();
+		env->set(name, value);
+		return value;
 	}
 
 	default:

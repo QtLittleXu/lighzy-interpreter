@@ -21,7 +21,7 @@ public:
 	using infix_parse_fun = function<shared_ptr<Expression>(const shared_ptr<Expression>&)>;
 	enum PrecedenceType
 	{
-		Lowest, Equals, LessGreater, Sum, Product, Prefix, Call
+		Lowest, Equals, LessGreater, Sum, Product, Assign, Prefix, Call
 	};
 
 public:
@@ -41,6 +41,7 @@ private:
 	void no_prefix_parse_fun_error(Token::Type type);
 	bool expect_token_type(Token::Type type);
 	void integer_parse_error();
+	void assign_operand_type_error(const string& id);
 
 private:
 	// functions of parsing
@@ -65,6 +66,7 @@ private:
 
 	shared_ptr<Expression> parse_infix(const shared_ptr<Expression>& left);
 	shared_ptr<Expression> parse_call(const shared_ptr<Expression>& fun);
+	shared_ptr<Expression> parse_assign(const shared_ptr<Expression>& id);
 
 private:
 	shared_ptr<Lexer> _lexer;
@@ -96,22 +98,24 @@ private:
 		{ Token::GreaterEqual,	bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::Less,			bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::LessEqual,		bind(&Parser::parse_infix, this, placeholders::_1) },
-		{ Token::LParen,		bind(&Parser::parse_call, this, placeholders::_1) }
+		{ Token::LParen,		bind(&Parser::parse_call, this, placeholders::_1) },
+		{ Token::Assign,		bind(&Parser::parse_assign, this, placeholders::_1) },
 	};
 
 	const map<Token::Type, PrecedenceType> _tokenTypePrecedences = {
-		{ Token::Equal,Equals },
-		{ Token::NotEqual,Equals },
-		{ Token::Plus,Sum },
-		{ Token::Minus,Sum },
-		{ Token::Asterisk,Product },
-		{ Token::Slash,Product },
-		{ Token::LogicalNegation,Prefix },
-		{ Token::Greater,LessGreater },
-		{ Token::GreaterEqual,LessGreater },
-		{ Token::Less,LessGreater },
-		{ Token::LessEqual,LessGreater },
-		{ Token::LParen,Call }
+		{ Token::Equal,				Equals },
+		{ Token::NotEqual,			Equals },
+		{ Token::Plus,				Sum },
+		{ Token::Minus,				Sum },
+		{ Token::Asterisk,			Product },
+		{ Token::Slash,				Product },
+		{ Token::LogicalNegation,	Prefix },
+		{ Token::Greater,			LessGreater },
+		{ Token::GreaterEqual,		LessGreater },
+		{ Token::Less,				LessGreater },
+		{ Token::LessEqual,			LessGreater },
+		{ Token::LParen,			Call },
+		{ Token::Assign,			Assign }
 	};
 };
 
