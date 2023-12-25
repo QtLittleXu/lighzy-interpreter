@@ -14,7 +14,7 @@ public:
         Program, Expression, Statement,
         Let, Return, Arguments, Expressions, Block,
         Call, Function, ExpressionStatement, Identifier,
-        Integer, Bool, Infix, Prefix, If, String
+        Integer, Bool, Infix, Prefix, If, String, Assign
     };
 
 public:
@@ -26,6 +26,16 @@ public:
     Type type() const
     {
         return _type;
+    }
+
+    void setToken(const shared_ptr<Token>& token)
+    {
+        _token = token;
+    }
+
+    const auto& token() const
+    {
+        return _token;
     }
 
 protected:

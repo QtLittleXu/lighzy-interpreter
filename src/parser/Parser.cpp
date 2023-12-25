@@ -8,6 +8,7 @@
 #include "ast/FunctionExpression.hpp"
 #include "ast/CallExpression.hpp"
 #include "ast/StringExpression.hpp"
+#include "ast/AssignExpression.hpp"
 #include <memory>
 
 namespace li
@@ -61,7 +62,7 @@ bool Parser::expect_token_type(Token::Type type)
 	stringstream stream;
 	stream << pos_string() << "error: expected token type to be " << Token::typeName(type) << ", but got " << _current->typeName();
 	_outputs.push_back(stream.str());
-		return true;
+	return true;
 }
 
 void Parser::integer_parse_error()
@@ -69,6 +70,13 @@ void Parser::integer_parse_error()
 	stringstream stream;
 	stream << pos_string() << "invalid integer: " << _current->literal();
 	_outputs.push_back(stream.str());
+}
+
+void Parser::assign_operand_type_error(const string& id)
+{
+	stringstream buffer;
+	buffer << "error - assign operand type error: " << id;
+	_outputs.push_back(buffer.str());
 }
 
 shared_ptr<Program> Parser::parseProgram()
@@ -330,6 +338,22 @@ shared_ptr<Expression> Parser::parse_call(const shared_ptr<Expression>& fun)
 	call->setFun(fun);
 	call->setExprs(parse_expressions());
 	return call;
+}
+
+shared_ptr<Expression> Parser::parse_assign(const shared_ptr<Expression>& id)
+{
+	auto expr = make_shared<AssignExpression>(_current);
+	if (id->type() != Node::Type::Identifier)
+	{
+		assign_operand_type_error(id->toString());
+		parse_token();
+		return nullptr;
+	}
+
+	expr->setId(id);
+	parse_token();
+	expr->setValue(parse_expression(Lowest));
+	return expr;
 }
 
 shared_ptr<Expression> Parser::parse_string()
