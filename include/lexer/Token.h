@@ -16,7 +16,7 @@ public:
 		// special chars
 		Illegal, Eof, Identifier, Semicolon, Comma,
 		LParen, RParen,
-		LBrace, RBrace,
+		LBrace, RBrace, DoubleQuotes,
 
 		// types
 		Integer, String,

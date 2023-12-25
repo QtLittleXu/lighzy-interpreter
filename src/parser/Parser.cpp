@@ -359,8 +359,14 @@ shared_ptr<Expression> Parser::parse_assign(const shared_ptr<Expression>& id)
 shared_ptr<Expression> Parser::parse_string()
 {
 	auto expr = make_shared<StringExpression>(_current);
-	expr->setValue(_current->literal());
+	if (_current->literal() == "\n")
+	{
+		parse_token();
+		expect_token_type(Token::DoubleQuotes);
+		return nullptr;
+	}
 
+	expr->setValue(_current->literal());
 	parse_token();
 	return expr;
 }
