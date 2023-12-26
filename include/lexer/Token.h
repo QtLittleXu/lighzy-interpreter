@@ -30,33 +30,13 @@ public:
 	};
 
 public:
-	Token(const string& literal, Token::Type type) : _literal(literal), _type(type) {}
+	Token(const string& literal, Token::Type type) : literal(literal), type(type) {}
 
 public:
-	const string& literal() const
-	{
-		return _literal;
-	}
-
-	void setLiteral(const string& literal)
-	{
-		_literal = literal;
-	}
-
-	Token::Type type() const
-	{
-		return _type;
-	}
-
-	void setType(Token::Type type)
-	{
-		_type = type;
-	}
-
 	static string typeName(Type type)
 	{
-		auto it = _typeNames.find(type);
-		if (it == _typeNames.end())
+		auto it = typeNames.find(type);
+		if (it == typeNames.end())
 		{
 			return "";
 		}
@@ -66,18 +46,13 @@ public:
 
 	string typeName() const
 	{
-		return typeName(_type);
+		return typeName(type);
 	}
 
-	static const auto& typeNames() 
-	{
-		return _typeNames;
-	}
-
-private:
-	string _literal;
-	Token::Type _type;
-	static const map<Token::Type, string> _typeNames;
+public:
+	string literal;
+	Token::Type type;
+	static const map<Token::Type, string> typeNames;
 };
 
 

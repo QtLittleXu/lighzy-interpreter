@@ -9,25 +9,15 @@ namespace li
 class String : public Object
 {
 public:
-	String(const string& value = "") : Object(Object::Type::String), _value(value) {}
+	String(const string& value = "") : Object(Type::String), value(value) {}
 
 	string inspect() const override
 	{
-		return _value;
+		return value;
 	}
 
-	void setValue(const string& value)
-	{
-		_value = value;
-	}
-
-	const auto& value() const
-	{
-		return _value;
-	}
-
-private:
-	string _value;
+public:
+	string value;
 };
 
 

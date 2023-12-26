@@ -6,19 +6,19 @@ namespace li
 {
 
 
-class Statement : public Node
+class Stat : public Node
 {
 public:
-    Statement(const shared_ptr<Token>& token, Type type = Node::Type::Statement) : Node(token, type) {}
+    Stat(const shared_ptr<Token>& token, Type type = Type::Stat) : Node(token, type) {}
 
     virtual string literal() const override
     {
-        return _token->literal();
+        return token->literal;
     }
     
     virtual string toString() const override
     {
-        return "statement";
+        return "Stat";
     }
 };
 

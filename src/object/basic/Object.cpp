@@ -3,7 +3,7 @@
 namespace li
 {
 
-const map<Object::Type, string> Object::_typeNames = {
+const map<Object::Type, string> Object::typeNames = {
 	{ Type::Null,		"null" },
 	{ Type::Integer,	"integer" },
 	{ Type::Bool,		"bool" },

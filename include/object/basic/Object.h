@@ -18,17 +18,12 @@ public:
 	virtual string inspect() const = 0;
 
 public:
-	Object(Type type) : _type(type) {}
-
-	auto type() const
-	{
-		return _type;
-	}
+	Object(Type type) : type(type) {}
 
 	static string typeName(Type type)
 	{
-		auto it = _typeNames.find(type);
-		if (it == _typeNames.end())
+		auto it = typeNames.find(type);
+		if (it == typeNames.end())
 		{
 			return "";
 		}
@@ -37,12 +32,12 @@ public:
 
 	string typeName() const
 	{
-		return typeName(_type);
+		return typeName(type);
 	}
 
-protected:
-	Type _type;
-	static const map<Type, string> _typeNames;
+public:
+	Type type;
+	static const map<Type, string> typeNames;
 };
 
 

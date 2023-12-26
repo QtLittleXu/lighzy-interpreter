@@ -8,7 +8,7 @@ namespace li
 class Null : public Object
 {
 public:
-	Null() : Object(Object::Type::Null) {}
+	Null() : Object(Type::Null) {}
 
 	string inspect() const override
 	{

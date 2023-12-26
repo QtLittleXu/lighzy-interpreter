@@ -8,25 +8,15 @@ namespace li
 class Error : public Object
 {
 public:
-	Error(const string& message = "") : Object(Object::Type::Error), _message(message) {}
+	Error(const string& msg = "") : Object(Type::Error), message(msg) {}
 
 	string inspect() const override
 	{
-		return _message;
+		return message;
 	}
 
-	void setMessage(const string& message)
-	{
-		_message = message;
-	}
-
-	const auto& message() const
-	{
-		return _message;
-	}
-
-private:
-	string _message;
+public:
+	string message;
 };
 
 } // namespace li

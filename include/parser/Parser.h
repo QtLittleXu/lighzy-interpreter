@@ -1,13 +1,12 @@
 #pragma once
 
 #include "lexer/Lexer.h"
-#include "ast/basic/Expression.hpp"
 #include "ast/Program.hpp"
-#include "ast/LetStatement.hpp"
-#include "ast/ReturnStatement.hpp"
-#include "ast/BlockStatement.hpp"
-#include "ast/ArgumentsStatement.hpp"
-#include "ast/ExpressionsStatement.hpp"
+#include "ast/LetStat.hpp"
+#include "ast/ReturnStat.hpp"
+#include "ast/BlockStat.hpp"
+#include "ast/ArgumentsStat.hpp"
+#include "ast/ExpressionsStat.hpp"
 #include <functional>
 
 namespace li
@@ -17,8 +16,8 @@ namespace li
 class Parser
 {
 public:
-	using prefix_parse_fun = function<shared_ptr<Expression>()>;
-	using infix_parse_fun = function<shared_ptr<Expression>(const shared_ptr<Expression>&)>;
+	using prefix_parse_fun = function<shared_ptr<Expr>()>;
+	using infix_parse_fun = function<shared_ptr<Expr>(const shared_ptr<Expr>&)>;
 	enum PrecedenceType
 	{
 		Lowest, Equals, LessGreater, Sum, Product, Assign, Prefix, Call
@@ -45,28 +44,28 @@ private:
 
 private:
 	// functions of parsing
-	shared_ptr<Statement> parse_statement();
-	shared_ptr<Statement> parse_expression_statement();
-	shared_ptr<LetStatement> parse_let_statement();
-	shared_ptr<ReturnStatement> parse_return_statement();
-	shared_ptr<BlockStatement> parse_block_statement();
+	shared_ptr<Stat> parse_statement();
+	shared_ptr<Stat> parse_expr_stat();
+	shared_ptr<LetStat> parse_let_stat();
+	shared_ptr<ReturnStat> parse_return_stat();
+	shared_ptr<BlockStat> parse_block_stat();
 
-	shared_ptr<ArgumentsStatement> parse_arguments();
-	shared_ptr<ExpressionsStatement> parse_expressions();
+	shared_ptr<ArgumentsStat> parse_args();
+	shared_ptr<ExpressionsStat> parse_exprs();
 
-	shared_ptr<Expression> parse_expression(PrecedenceType precedence);
-	shared_ptr<Expression> parse_intger();
-	shared_ptr<Expression> parse_identifier();
-	shared_ptr<Expression> parse_prefix();
-	shared_ptr<Expression> parse_group();
-	shared_ptr<Expression> parse_bool();
-	shared_ptr<Expression> parse_if();
-	shared_ptr<Expression> parse_function();
-	shared_ptr<Expression> parse_string();
+	shared_ptr<Expr> parse_expr(PrecedenceType precedence);
+	shared_ptr<Expr> parse_intger();
+	shared_ptr<Expr> parse_identifier();
+	shared_ptr<Expr> parse_prefix();
+	shared_ptr<Expr> parse_group();
+	shared_ptr<Expr> parse_bool();
+	shared_ptr<Expr> parse_if();
+	shared_ptr<Expr> parse_function();
+	shared_ptr<Expr> parse_string();
 
-	shared_ptr<Expression> parse_infix(const shared_ptr<Expression>& left);
-	shared_ptr<Expression> parse_call(const shared_ptr<Expression>& fun);
-	shared_ptr<Expression> parse_assign(const shared_ptr<Expression>& id);
+	shared_ptr<Expr> parse_infix(const shared_ptr<Expr>& left);
+	shared_ptr<Expr> parse_call(const shared_ptr<Expr>& fun);
+	shared_ptr<Expr> parse_assign(const shared_ptr<Expr>& id);
 
 private:
 	shared_ptr<Lexer> _lexer;

@@ -4,7 +4,7 @@ namespace li
 {
 
 
-const map<Token::Type, string> Token::_typeNames =
+const map<Token::Type, string> Token::typeNames =
 {
 	{ Illegal,			"illegal"},
 	{ Eof,				"eof"},

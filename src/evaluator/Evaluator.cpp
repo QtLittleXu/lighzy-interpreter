@@ -5,17 +5,17 @@
 #include "object/Error.hpp"
 #include "object/ReturnValue.hpp"
 #include "object/String.hpp"
-#include "ast/IntegerExpression.hpp"
-#include "ast/ExpressionStatement.hpp"
-#include "ast/BoolExpression.hpp"
-#include "ast/PrefixExpression.hpp"
-#include "ast/InfixExpression.hpp"
-#include "ast/ReturnStatement.hpp"
-#include "ast/FunctionExpression.hpp"
-#include "ast/LetStatement.hpp"
-#include "ast/CallExpression.hpp"
-#include "ast/StringExpression.hpp"
-#include "ast/AssignExpression.hpp"
+#include "ast/IntegerExpr.hpp"
+#include "ast/BoolExpr.hpp"
+#include "ast/PrefixExpr.hpp"
+#include "ast/InfixExpr.hpp"
+#include "ast/ReturnStat.hpp"
+#include "ast/FunctionExpr.hpp"
+#include "ast/LetStat.hpp"
+#include "ast/CallExpr.hpp"
+#include "ast/StringExpr.hpp"
+#include "ast/AssignExpr.hpp"
+#include "ast/ExpressionStat.hpp"
 
 namespace li
 {
@@ -25,25 +25,25 @@ const shared_ptr<Bool> Evaluator::bool_true = make_shared<Bool>(true);
 const shared_ptr<Bool> Evaluator::bool_false = make_shared<Bool>(false);
 const shared_ptr<Null> Evaluator::null = make_shared<Null>();
 
-const shared_ptr<Bool>& Evaluator::evaluate_bool(const shared_ptr<BoolExpression>& node)
+const shared_ptr<Bool>& Evaluator::evaluate_bool(const shared_ptr<BoolExpr>& node)
 {
-	return node->value() ? bool_true : bool_false;
+	return node->value ? bool_true : bool_false;
 }
 
 shared_ptr<Object> Evaluator::evaluate_program(const shared_ptr<Program>& node, const shared_ptr<Environment>& env)
 {
 	shared_ptr<Object> result;
-	for (const auto& statement : node->statements())
+	for (const auto& statement : node->statements)
 	{
 		result = evaluate(statement, env);
 
 		if (!result) continue;
 
-		if (result->type() == Object::Type::ReturnValue)
+		if (result->type == Object::Type::ReturnValue)
 		{
-			return dynamic_pointer_cast<ReturnValue>(result)->value();
+			return dynamic_pointer_cast<ReturnValue>(result)->value;
 		}
-		if (result->type() == Object::Type::Error)
+		if (result->type == Object::Type::Error)
 		{
 			return result;
 		}
@@ -53,10 +53,10 @@ shared_ptr<Object> Evaluator::evaluate_program(const shared_ptr<Program>& node, 
 
 shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& value)
 {
-	if (value->type() == Object::Type::Integer)
+	if (value->type == Object::Type::Integer)
 	{
 		auto cast = dynamic_pointer_cast<Integer>(value);
-		if (cast->value() == 0)
+		if (cast->value == 0)
 		{
 			return bool_true;
 		}
@@ -77,13 +77,13 @@ shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& val
 
 shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& value)
 {
-	if (value->type() != Object::Type::Integer)
+	if (value->type != Object::Type::Integer)
 	{
 		return prefix_operand_type("-", value->typeName());
 	}
 
 	auto cast = dynamic_pointer_cast<Integer>(value);
-	return make_shared<Integer>(-cast->value());
+	return make_shared<Integer>(-cast->value);
 }
 
 shared_ptr<Object> Evaluator::prefix_operand_type(const string& operatorName, const string& right)
@@ -149,8 +149,8 @@ const shared_ptr<Bool>& Evaluator::bool_to_object(bool value)
 
 shared_ptr<Object> Evaluator::evaluate_infix_integer(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
 {
-	auto leftValue = dynamic_pointer_cast<Integer>(left)->value();
-	auto rightValue = dynamic_pointer_cast<Integer>(right)->value();
+	auto leftValue = dynamic_pointer_cast<Integer>(left)->value;
+	auto rightValue = dynamic_pointer_cast<Integer>(right)->value;
 
 	if (operatorName == "+")
 	{
@@ -211,8 +211,8 @@ bool Evaluator::is_true(const shared_ptr<Object>& obj)
 
 shared_ptr<Object> Evaluator::evaluate_infix_string(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
 {
-	auto leftValue = dynamic_pointer_cast<String>(left)->value();
-	auto rightValue = dynamic_pointer_cast<String>(right)->value();
+	auto leftValue = dynamic_pointer_cast<String>(left)->value;
+	auto rightValue = dynamic_pointer_cast<String>(right)->value;
 
 	if (operatorName == "+")
 	{
@@ -232,16 +232,16 @@ shared_ptr<Object> Evaluator::evaluate_infix_string(const shared_ptr<Object>& le
 
 shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
 {
-	if (left->type() != right->type())
+	if (left->type != right->type)
 	{
 		return infix_operand_type_mismatch(left->typeName(), operatorName, right->typeName());
 	}
 
-	if (left->type() == Object::Type::Integer)
+	if (left->type == Object::Type::Integer)
 	{
 		return evaluate_infix_integer(left, operatorName, right);
 	}
-	if (left->type() == Object::Type::String)
+	if (left->type == Object::Type::String)
 	{
 		return evaluate_infix_string(left, operatorName, right);
 	}
@@ -257,16 +257,16 @@ shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, con
 	return unknown_infix(left->typeName(), operatorName, right->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_block(const shared_ptr<BlockStatement>& node, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_block(const shared_ptr<BlockStat>& node, const shared_ptr<Environment>& env)
 {
 	shared_ptr<Object> result;
-	for (const auto& statement : node->statements())
+	for (const auto& statement : node->statements)
 	{
 		result = evaluate(statement, env);
 
 		if (!result) continue;
 
-		if (result->type() == Object::Type::ReturnValue || result->type() == Object::Type::Error)
+		if (result->type == Object::Type::ReturnValue || result->type == Object::Type::Error)
 		{
 			return result;
 		}
@@ -274,36 +274,36 @@ shared_ptr<Object> Evaluator::evaluate_block(const shared_ptr<BlockStatement>& n
 	return result;
 }
 
-shared_ptr<Object> Evaluator::evaluate_if(const shared_ptr<IfExpression>& node, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_if(const shared_ptr<IfExpr>& node, const shared_ptr<Environment>& env)
 {
-	if (is_true(evaluate(node->condition(), env)))
+	if (is_true(evaluate(node->condition, env)))
 	{
-		return evaluate(node->consequence(), env);
+		return evaluate(node->consequence, env);
 	}
-	if (node->alternative() != nullptr)
+	if (node->alternative != nullptr)
 	{
-		return evaluate(node->alternative(), env);
+		return evaluate(node->alternative, env);
 	}
 	return null;
 }
 
-shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpression>& id, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpr>& id, const shared_ptr<Environment>& env)
 {
-	auto value = env->get(id->value());
+	auto value = env->get(id->value);
 	if (!value)
 	{
-		return identifier_not_found(id->value());
+		return identifier_not_found(id->value);
 	}
 	return value;
 }
 
-vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<ExpressionsStatement>& exprs, const shared_ptr<Environment>& env)
+vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<ExpressionsStat>& exprs, const shared_ptr<Environment>& env)
 {
 	vector<shared_ptr<Object>> result;
-	for (const auto& expr : exprs->expressions())
+	for (const auto& expr : exprs->expressions)
 	{
 		auto evaluated = evaluate(expr, env);
-		if (evaluated->type() == Object::Type::Error)
+		if (evaluated->type == Object::Type::Error)
 		{
 			return { evaluated };
 		}
@@ -314,11 +314,11 @@ vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<Expression
 
 const shared_ptr<Environment> Evaluator::bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects)
 {
-	auto env = make_shared<Environment>(fun->env());
-	for (int i = 0; i < fun->args()->args().size(); i++)
+	auto env = make_shared<Environment>(fun->env);
+	for (int i = 0; i < fun->args->args.size(); i++)
 	{
-		auto id = fun->args()->args().at(i);
-		env->set(id->value(), objects.at(i));
+		auto id = fun->args->args.at(i);
+		env->set(id->value, objects.at(i));
 	}
 	return env;
 }
@@ -326,18 +326,18 @@ const shared_ptr<Environment> Evaluator::bind_fun_args_to_objects(const shared_p
 shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& args)
 {
 	auto innerEnv = bind_fun_args_to_objects(fun, args);
-	auto evaluated = evaluate(fun->body(), innerEnv);
+	auto evaluated = evaluate(fun->body, innerEnv);
 
-	if (evaluated->type() == Object::Type::ReturnValue)
+	if (evaluated->type == Object::Type::ReturnValue)
 	{
-		return dynamic_pointer_cast<ReturnValue>(evaluated)->value();
+		return dynamic_pointer_cast<ReturnValue>(evaluated)->value;
 	}
 	return evaluated;
 }
 
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
 {
-	switch (node->type())
+	switch (node->type)
 	{
 
 	case Node::Type::Program:
@@ -346,69 +346,69 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 		return evaluate_program(cast, env);
 	}
 
-	case Node::Type::ExpressionStatement:
+	case Node::Type::ExprStat:
 	{
-		auto cast = dynamic_pointer_cast<ExpressionStatement>(node);
-		return evaluate(cast->expression(), env);
+		auto cast = dynamic_pointer_cast<ExpressionStat>(node);
+		return evaluate(cast->expression, env);
 	}
 	
 	case Node::Type::Integer:
 	{
-		auto cast = dynamic_pointer_cast<IntegerExpression>(node);
-		return make_shared<Integer>(cast->value());
+		auto cast = dynamic_pointer_cast<IntegerExpr>(node);
+		return make_shared<Integer>(cast->value);
 	}
 
 	case Node::Type::Bool:
 	{
-		auto cast = dynamic_pointer_cast<BoolExpression>(node);
+		auto cast = dynamic_pointer_cast<BoolExpr>(node);
 		return evaluate_bool(cast);
 	}
 	case Node::Type::Prefix:
 	{
-		auto cast = dynamic_pointer_cast<PrefixExpression>(node);
-		auto right = evaluate(cast->right(), env);
-		if (right->type() == Object::Type::Error)
+		auto cast = dynamic_pointer_cast<PrefixExpr>(node);
+		auto right = evaluate(cast->right, env);
+		if (right->type == Object::Type::Error)
 		{
 			return right;
 		}
 
-		return evaluate_prefix(cast->operatorName(), right);
+		return evaluate_prefix(cast->operatorName, right);
 	}
 
 	case Node::Type::Infix:
 	{
-		auto cast = dynamic_pointer_cast<InfixExpression>(node);
-		auto left = evaluate(cast->left(), env);
-		if (left->type() == Object::Type::Error)
+		auto cast = dynamic_pointer_cast<InfixExpr>(node);
+		auto left = evaluate(cast->left, env);
+		if (left->type == Object::Type::Error)
 		{
 			return left;
 		}
-		auto right = evaluate(cast->right(), env);
-		if (right->type() == Object::Type::Error)
+		auto right = evaluate(cast->right, env);
+		if (right->type == Object::Type::Error)
 		{
 			return right;
 		}
 
-		return evaluate_infix(left, cast->operatorName(), right);
+		return evaluate_infix(left, cast->operatorName, right);
 	}
 
 	case Node::Type::Block:
 	{
-		auto cast = dynamic_pointer_cast<BlockStatement>(node);
+		auto cast = dynamic_pointer_cast<BlockStat>(node);
 		return evaluate_block(cast, env);
 	}
 
 	case Node::Type::If:
 	{
-		auto cast = dynamic_pointer_cast<IfExpression>(node);
+		auto cast = dynamic_pointer_cast<IfExpr>(node);
 		return evaluate_if(cast, env);
 	}
 
 	case Node::Type::Return:
 	{
-		auto cast = dynamic_pointer_cast<ReturnStatement>(node);
-		auto value = evaluate(cast->value(), env);
-		if (value->type() == Object::Type::Error)
+		auto cast = dynamic_pointer_cast<ReturnStat>(node);
+		auto value = evaluate(cast->value, env);
+		if (value->type == Object::Type::Error)
 		{
 			return value;
 		}
@@ -418,44 +418,44 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 
 	case Node::Type::Let:
 	{
-		auto cast = dynamic_pointer_cast<LetStatement>(node);
-		auto value = evaluate(cast->value(), env);
-		if (value->type() == Object::Type::Error)
+		auto cast = dynamic_pointer_cast<LetStat>(node);
+		auto value = evaluate(cast->value, env);
+		if (value->type == Object::Type::Error)
 		{
 			return value;
 		}
 
-		env->set(cast->name()->value(), value);
+		env->set(cast->name->value, value);
 		return null;
 	}
 
 	case Node::Type::Identifier:
 	{
-		auto cast = dynamic_pointer_cast<IdentifierExpression>(node);
+		auto cast = dynamic_pointer_cast<IdentifierExpr>(node);
 		return evaluate_id(cast, env);
 	}
 
 	case Node::Type::Function:
 	{
-		auto cast = dynamic_pointer_cast<FunctionExpression>(node);
-		return make_shared<Function>(cast->args(), cast->body(), env);
+		auto cast = dynamic_pointer_cast<FunctionExpr>(node);
+		return make_shared<Function>(cast->args, cast->body, env);
 	}
 
 	case Node::Type::Call:
 	{
-		auto cast = dynamic_pointer_cast<CallExpression>(node);
-		auto fun = evaluate(cast->fun(), env);
-		if (fun->type() == Object::Type::Error)
+		auto cast = dynamic_pointer_cast<CallExpr>(node);
+		auto fun = evaluate(cast->fun, env);
+		if (fun->type == Object::Type::Error)
 		{
 			return fun;
 		}
-		if (fun->type() != Object::Type::Function)
+		if (fun->type != Object::Type::Function)
 		{
 			return not_function(fun->typeName());
 		}
 
-		auto args = evaluate_exprs(cast->exprs(), env);
-		if (args.size() == 1 && args.at(0)->type() == Object::Type::Error)
+		auto args = evaluate_exprs(cast->exprs, env);
+		if (args.size() == 1 && args.at(0)->type == Object::Type::Error)
 		{
 			return args.at(0);
 		}
@@ -465,25 +465,25 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 
 	case Node::Type::String:
 	{
-		auto cast = dynamic_pointer_cast<StringExpression>(node);
-		return make_shared<String>(cast->value());
+		auto cast = dynamic_pointer_cast<StringExpr>(node);
+		return make_shared<String>(cast->value);
 	}
 
 	case Node::Type::Assign:
 	{
-		auto cast = dynamic_pointer_cast<AssignExpression>(node);
-		auto id = evaluate(cast->id(), env);
-		auto value = evaluate(cast->value(), env);
-		if (id->type() == Object::Type::Error)
+		auto cast = dynamic_pointer_cast<AssignExpr>(node);
+		auto id = evaluate(cast->id, env);
+		auto value = evaluate(cast->value, env);
+		if (id->type == Object::Type::Error)
 		{
 			return id;
 		}
-		if (value->type() == Object::Type::Error)
+		if (value->type == Object::Type::Error)
 		{
 			return value;
 		}
 
-		string name = dynamic_pointer_cast<IdentifierExpression>(cast->id())->value();
+		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
 		env->set(name, value);
 		return value;
 	}

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "basic/Statement.hpp"
-#include <sstream>
-#include <vector>
 
 namespace li
 {
@@ -17,35 +15,25 @@ public:
     string literal() const override
     {
         string result;
-        for (const auto& statement : _statements)
+        for (const auto& Stat : statements)
         {
-            result += statement->literal() + "\n";
+            result += Stat->literal() + "\n";
         }
         return result;
-    }
-    
-    void addStatement(const shared_ptr<Statement>& statement)
-    {
-        _statements.push_back(statement);
-    }
-
-    const auto& statements() const
-    {
-        return _statements;
     }
 
     string toString() const override
     {
         stringstream stream;
-        for (const auto& statement : _statements)
+        for (const auto& Stat : statements)
         {
-            stream << statement->toString() << "; ";
+            stream << Stat->toString() << "; ";
         }
         return stream.str();
     }
 
-private:
-    vector<shared_ptr<Statement>> _statements;
+public:
+    vector<shared_ptr<Stat>> statements;
 };
 
 

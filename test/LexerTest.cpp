@@ -49,8 +49,8 @@ TEST(LexerTest, parseToken)
 	for (const auto& [expectedType, expectedLiteral] : tests)
 	{
 		auto token = lexer.parseToken();
-		auto type = token->type();
-		auto literal = token->literal();
+		auto type = token->type;
+		auto literal = token->literal;
 
 		EXPECT_EQ(type, expectedType);
 		EXPECT_EQ(literal, expectedLiteral);

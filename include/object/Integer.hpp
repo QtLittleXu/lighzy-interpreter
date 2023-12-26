@@ -9,25 +9,15 @@ namespace li
 class Integer : public Object
 {
 public:
-	Integer(int64_t value = 0) : Object(Object::Type::Integer), _value(value) {}
+	Integer(int64_t value = 0) : Object(Type::Integer), value(value) {}
 
 	string inspect() const override
 	{
-		return to_string(_value);
+		return to_string(value);
 	}
 
-	void setValue(int64_t value)
-	{
-		_value = value;
-	}
-
-	auto value() const
-	{
-		return _value;
-	}
-
-private:
-	int64_t _value{};
+public:
+	int64_t value{};
 };
 
 

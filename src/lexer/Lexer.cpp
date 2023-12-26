@@ -196,7 +196,7 @@ void Lexer::skip_whitespace()
 Token::Type Lexer::lookup_id(const string& id)
 {
     Token::Type type = Token::Identifier;
-	for (const auto& it : Token::typeNames())
+	for (const auto& it : Token::typeNames)
 	{
 		if (it.second == id)
 		{

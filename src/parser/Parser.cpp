@@ -1,14 +1,14 @@
 #include "parser/Parser.h"
-#include "ast/ExpressionStatement.hpp"
-#include "ast/IntegerExpression.hpp"
-#include "ast/InfixExpression.hpp"
-#include "ast/PrefixExpression.hpp"
-#include "ast/BoolExpression.hpp"
-#include "ast/IfExpression.hpp"
-#include "ast/FunctionExpression.hpp"
-#include "ast/CallExpression.hpp"
-#include "ast/StringExpression.hpp"
-#include "ast/AssignExpression.hpp"
+#include "ast/ExpressionStat.hpp"
+#include "ast/IntegerExpr.hpp"
+#include "ast/InfixExpr.hpp"
+#include "ast/PrefixExpr.hpp"
+#include "ast/BoolExpr.hpp"
+#include "ast/IfExpr.hpp"
+#include "ast/FunctionExpr.hpp"
+#include "ast/CallExpr.hpp"
+#include "ast/StringExpr.hpp"
+#include "ast/AssignExpr.hpp"
 #include <memory>
 
 namespace li
@@ -54,7 +54,7 @@ void Parser::no_prefix_parse_fun_error(Token::Type type)
 
 bool Parser::expect_token_type(Token::Type type)
 {
-	if (_current->type() == type)
+	if (_current->type == type)
 	{
 		return false;
 	}
@@ -68,7 +68,7 @@ bool Parser::expect_token_type(Token::Type type)
 void Parser::integer_parse_error()
 {
 	stringstream stream;
-	stream << pos_string() << "invalid integer: " << _current->literal();
+	stream << pos_string() << "invalid integer: " << _current->literal;
 	_outputs.push_back(stream.str());
 }
 
@@ -82,22 +82,22 @@ void Parser::assign_operand_type_error(const string& id)
 shared_ptr<Program> Parser::parseProgram()
 {
     auto program = make_shared<Program>(_current);
-	while (_current->type() != Token::Eof)
+	while (_current->type != Token::Eof)
 	{
-		auto statement = parse_statement();
-		if (!statement)
+		auto stat = parse_statement();
+		if (!stat)
 		{
 			continue;
 		}
 
-		program->addStatement(statement);
+		program->statements.push_back(stat);
 	}
 	return program;
 }
 
-shared_ptr<Statement> Parser::parse_statement()
+shared_ptr<Stat> Parser::parse_statement()
 {
-    switch (_current->type())
+    switch (_current->type)
 	{
 
 	case Token::Semicolon:
@@ -105,41 +105,41 @@ shared_ptr<Statement> Parser::parse_statement()
 		return nullptr;
 
 	case Token::Let:
-		return parse_let_statement();
+		return parse_let_stat();
 
 	case Token::Return:
-		return parse_return_statement();
+		return parse_return_stat();
 
 	default:
-		return parse_expression_statement();
+		return parse_expr_stat();
 
 	}
 }
 
-shared_ptr<Statement> Parser::parse_expression_statement()
+shared_ptr<Stat> Parser::parse_expr_stat()
 {
-    auto statement = make_shared<ExpressionStatement>(_current);
-	statement->setExpression(parse_expression(Lowest));
-	return statement;
+    auto stat = make_shared<ExpressionStat>(_current);
+	stat->expression = parse_expr(Lowest);
+	return stat;
 }
 
-shared_ptr<Expression> Parser::parse_expression(PrecedenceType precedence)
+shared_ptr<Expr> Parser::parse_expr(PrecedenceType precedence)
 {
-    auto prefixFun = _prefixParseFuns.find(_current->type());
+    auto prefixFun = _prefixParseFuns.find(_current->type);
 	if (prefixFun == _prefixParseFuns.end())
 	{
-		no_prefix_parse_fun_error(_current->type());
+		no_prefix_parse_fun_error(_current->type);
 		parse_token();
 		return nullptr;
 	}
 
 	auto leftExpr = prefixFun->second();
-	while (precedence < get_precedence(_current->type()))
+	while (precedence < get_precedence(_current->type))
 	{
-		auto infixFun = _infixParseFuns.find(_current->type());
+		auto infixFun = _infixParseFuns.find(_current->type);
 		if (infixFun == _infixParseFuns.end())
 		{
-			// the infix parse function is not found, it is a prefix expression
+			// the infix parse function is not found, it is a prefix Expr
 			return leftExpr;
 		}
 		leftExpr = infixFun->second(leftExpr);
@@ -147,37 +147,37 @@ shared_ptr<Expression> Parser::parse_expression(PrecedenceType precedence)
 	return leftExpr;
 }
 
-shared_ptr<LetStatement> Parser::parse_let_statement()
+shared_ptr<LetStat> Parser::parse_let_stat()
 {
-    auto statement = make_shared<LetStatement>(_current);
+    auto stat = make_shared<LetStat>(_current);
 	parse_token();
 	if (expect_token_type(Token::Identifier)) return nullptr;
-	statement->setName(dynamic_pointer_cast<IdentifierExpression>(parse_identifier()));
+	stat->name = dynamic_pointer_cast<IdentifierExpr>(parse_identifier());
 	
 	if(expect_token_type(Token::Assign)) return nullptr;
 
 	parse_token();
-	statement->setValue(parse_expression(Lowest));
+	stat->value = parse_expr(Lowest);
 
-	return statement;
+	return stat;
 }
 
-shared_ptr<ReturnStatement> Parser::parse_return_statement()
+shared_ptr<ReturnStat> Parser::parse_return_stat()
 {
-	auto statement = make_shared<ReturnStatement>(_current);
+	auto stat = make_shared<ReturnStat>(_current);
 	
 	parse_token();
-	statement->setValue(parse_expression(Lowest));
+	stat->value = parse_expr(Lowest);
 
-	return statement;
+	return stat;
 }
 
-shared_ptr<Expression> Parser::parse_intger()
+shared_ptr<Expr> Parser::parse_intger()
 {
-	auto expr = make_shared<IntegerExpression>(_current);
+	auto expr = make_shared<IntegerExpr>(_current);
 	try
 	{
-		expr->setValue(stoull(_current->literal()));
+		expr->value = stoull(_current->literal);
 		parse_token();
 		return expr;
 	}
@@ -188,69 +188,69 @@ shared_ptr<Expression> Parser::parse_intger()
 	}
 }
 
-shared_ptr<Expression> Parser::parse_identifier()
+shared_ptr<Expr> Parser::parse_identifier()
 {
-	auto expr = make_shared<IdentifierExpression>(_current);
-	expr->setValue(_current->literal());
+	auto expr = make_shared<IdentifierExpr>(_current);
+	expr->value = _current->literal;
 
 	parse_token();
 	return expr;
 }
 
-shared_ptr<Expression> Parser::parse_infix(const shared_ptr<Expression>& left)
+shared_ptr<Expr> Parser::parse_infix(const shared_ptr<Expr>& left)
 {
-	auto expr = make_shared<InfixExpression>(_current);
-	expr->setLeft(left);
-	expr->setOperator(_current->literal());
+	auto expr = make_shared<InfixExpr>(_current);
+	expr->left = left;
+	expr->operatorName = _current->literal;
 
-	auto cur = get_precedence(_current->type());
+	auto cur = get_precedence(_current->type);
 	parse_token();
-	expr->setRight(parse_expression(cur));
+	expr->right = parse_expr(cur);
 	return expr;
 }
 
-shared_ptr<Expression> Parser::parse_prefix()
+shared_ptr<Expr> Parser::parse_prefix()
 {
-	auto expr = make_shared<PrefixExpression>(_current);
-	expr->setOperator(_current->literal());
+	auto expr = make_shared<PrefixExpr>(_current);
+	expr->operatorName = _current->literal;
 	
 	parse_token();
-	expr->setRight(parse_expression(Prefix));
+	expr->right = parse_expr(Prefix);
 	return expr;
 }
 
-shared_ptr<Expression> Parser::parse_group()
+shared_ptr<Expr> Parser::parse_group()
 {
 	parse_token();
-	auto expr = parse_expression(Lowest);
+	auto expr = parse_expr(Lowest);
 	if (expect_token_type(Token::RParen)) return nullptr;
 	parse_token();
 	return expr;
 }
 
-shared_ptr<Expression> Parser::parse_bool()
+shared_ptr<Expr> Parser::parse_bool()
 {
-	auto expr = make_shared<BoolExpression>(_current);
-	expr->setValue(_current->type() == Token::True);
+	auto expr = make_shared<BoolExpr>(_current);
+	expr->value = _current->type == Token::True;
 	
 	parse_token();
 	return expr;
 }
 
-shared_ptr<BlockStatement> Parser::parse_block_statement()
+shared_ptr<BlockStat> Parser::parse_block_stat()
 {
-	auto block = make_shared<BlockStatement>(_current);
+	auto block = make_shared<BlockStat>(_current);
 	if (expect_token_type(Token::LBrace)) return nullptr;
 	parse_token();
 
-	while (_current->type() != Token::RBrace && _current->type() != Token::Eof)
+	while (_current->type != Token::RBrace && _current->type != Token::Eof)
 	{
 		auto temp = parse_statement();
 		if (!temp)
 		{
 			continue;
 		}
-		block->addStatement(temp);
+		block->statements.push_back(temp);
 	}
 
 	if (expect_token_type(Token::RBrace)) return nullptr;
@@ -258,39 +258,39 @@ shared_ptr<BlockStatement> Parser::parse_block_statement()
 	return block;
 }
 
-shared_ptr<Expression> Parser::parse_if()
+shared_ptr<Expr> Parser::parse_if()
 {
-	auto expr = make_shared<IfExpression>(_current);
+	auto expr = make_shared<IfExpr>(_current);
 
 	parse_token();
 	if (expect_token_type(Token::LParen)) return nullptr;
 	parse_token();
 
-	expr->setCondition(parse_expression(Lowest));
+	expr->condition = parse_expr(Lowest);
 	if (expect_token_type(Token::RParen)) return nullptr;
 	parse_token();
 
-	expr->setConsequence(parse_block_statement());
+	expr->consequence = parse_block_stat();
 
-	if (_current->type() == Token::Else)
+	if (_current->type == Token::Else)
 	{
 		parse_token();
-		expr->setAlternative(parse_block_statement());
+		expr->alternative = parse_block_stat();
 	}
 	return expr;
 }
 
-shared_ptr<ArgumentsStatement> Parser::parse_arguments()
+shared_ptr<ArgumentsStat> Parser::parse_args()
 {
-	auto args = make_shared<ArgumentsStatement>(_current);
+	auto args = make_shared<ArgumentsStat>(_current);
 	if (expect_token_type(Token::LParen)) return nullptr;
 	parse_token();
 
-	while (_current->type() != Token::RParen && _current->type() != Token::Eof)
+	while (_current->type != Token::RParen && _current->type != Token::Eof)
 	{
-		args->addArg(dynamic_pointer_cast<IdentifierExpression>(parse_identifier()));
+		args->args.push_back(dynamic_pointer_cast<IdentifierExpr>(parse_identifier()));
 
-		if (_current->type() == Token::Comma)
+		if (_current->type == Token::Comma)
 		{
 			parse_token();
 		}
@@ -301,27 +301,27 @@ shared_ptr<ArgumentsStatement> Parser::parse_arguments()
 	return args;
 }
 
-shared_ptr<Expression> Parser::parse_function()
+shared_ptr<Expr> Parser::parse_function()
 {
-	auto fun = make_shared<FunctionExpression>(_current);
+	auto fun = make_shared<FunctionExpr>(_current);
 
 	parse_token();
-	fun->setArgs(parse_arguments());
-	fun->setBody(parse_block_statement());
+	fun->args = parse_args();
+	fun->body = parse_block_stat();
 	return fun;
 }
 
-shared_ptr<ExpressionsStatement> Parser::parse_expressions()
+shared_ptr<ExpressionsStat> Parser::parse_exprs()
 {
-	auto exprs = make_shared<ExpressionsStatement>(_current);
+	auto exprs = make_shared<ExpressionsStat>(_current);
 	if (expect_token_type(Token::LParen)) return nullptr;
 	parse_token();
 
-	while (_current->type() != Token::RParen && _current->type() != Token::Eof)
+	while (_current->type != Token::RParen && _current->type != Token::Eof)
 	{
-		exprs->addExpression(parse_expression(Lowest));
+		exprs->expressions.push_back(parse_expr(Lowest));
 
-		if (_current->type() == Token::Comma)
+		if (_current->type == Token::Comma)
 		{
 			parse_token();
 		}
@@ -332,41 +332,41 @@ shared_ptr<ExpressionsStatement> Parser::parse_expressions()
 	return exprs;
 }
 
-shared_ptr<Expression> Parser::parse_call(const shared_ptr<Expression>& fun)
+shared_ptr<Expr> Parser::parse_call(const shared_ptr<Expr>& fun)
 {
-	auto call = make_shared<CallExpression>(_current);
-	call->setFun(fun);
-	call->setExprs(parse_expressions());
-	return call;
+	auto expr = make_shared<CallExpr>(_current);
+	expr->fun = fun;
+	expr->exprs = parse_exprs();
+	return expr;
 }
 
-shared_ptr<Expression> Parser::parse_assign(const shared_ptr<Expression>& id)
+shared_ptr<Expr> Parser::parse_assign(const shared_ptr<Expr>& id)
 {
-	auto expr = make_shared<AssignExpression>(_current);
-	if (id->type() != Node::Type::Identifier)
+	auto expr = make_shared<AssignExpr>(_current);
+	if (id->type != Node::Type::Identifier)
 	{
 		assign_operand_type_error(id->toString());
 		parse_token();
 		return nullptr;
 	}
 
-	expr->setId(id);
+	expr->id = id;
 	parse_token();
-	expr->setValue(parse_expression(Lowest));
+	expr->value = parse_expr(Lowest);
 	return expr;
 }
 
-shared_ptr<Expression> Parser::parse_string()
+shared_ptr<Expr> Parser::parse_string()
 {
-	auto expr = make_shared<StringExpression>(_current);
-	if (_current->literal() == "\n")
+	auto expr = make_shared<StringExpr>(_current);
+	if (_current->literal == "\n")
 	{
 		parse_token();
 		expect_token_type(Token::DoubleQuotes);
 		return nullptr;
 	}
 
-	expr->setValue(_current->literal());
+	expr->value = _current->literal;
 	parse_token();
 	return expr;
 }

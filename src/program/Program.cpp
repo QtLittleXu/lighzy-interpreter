@@ -109,7 +109,7 @@ void Program::parse_source(const string& input, const shared_ptr<Environment>& e
 	auto evaluator = make_shared<li::Evaluator>();
 	auto obj = evaluator->evaluate(program, env);
 	
-	if (!obj || obj->type() == Object::Type::Null)
+	if (!obj || obj->type == Object::Type::Null)
 	{
 		return;
 	}

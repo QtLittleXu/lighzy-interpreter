@@ -6,19 +6,19 @@ namespace li
 {
 
 
-class Expression : public Node
+class Expr : public Node
 {
 public:
-    Expression(const shared_ptr<Token>& token, Type type = Node::Type::Expression) : Node(token, type) {}
+    Expr(const shared_ptr<Token>& token, Type type = Type::Expr) : Node(token, type) {}
 
     virtual string literal() const override
     {
-        return _token->literal();
+        return token->literal;
     }
     
     virtual string toString() const override
     {
-        return "expression";
+        return "Expr";
     }
 };
 

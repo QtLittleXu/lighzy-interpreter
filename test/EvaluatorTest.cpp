@@ -28,7 +28,7 @@ void testInteger(const shared_ptr<Object>& obj, int64_t value)
 	ASSERT_EQ(obj->typeName(), "integer");
 
 	auto cast = dynamic_pointer_cast<Integer>(obj);
-	EXPECT_EQ(cast->value(), value);
+	EXPECT_EQ(cast->value, value);
 }
 
 void testBool(const shared_ptr<Object>& obj, bool value)
@@ -36,7 +36,7 @@ void testBool(const shared_ptr<Object>& obj, bool value)
 	ASSERT_EQ(obj->typeName(), "bool");
 
 	auto cast = dynamic_pointer_cast<Bool>(obj);
-	EXPECT_EQ(cast->value(), value);
+	EXPECT_EQ(cast->value, value);
 }
 
 void testString(const shared_ptr<Object>& obj, const string& value)
@@ -44,7 +44,7 @@ void testString(const shared_ptr<Object>& obj, const string& value)
 	ASSERT_EQ(obj->typeName(), "string");
 
 	auto cast = dynamic_pointer_cast<String>(obj);
-	EXPECT_EQ(cast->value(), value);
+	EXPECT_EQ(cast->value, value);
 }
 
 void testNull(const shared_ptr<Object>& obj)
@@ -59,7 +59,7 @@ void testError(const shared_ptr<Object>& obj, const string& message)
 	ASSERT_EQ(obj->typeName(), "error");
 
 	auto cast = dynamic_pointer_cast<Error>(obj);
-	EXPECT_EQ(cast->message(), message);
+	EXPECT_EQ(cast->message, message);
 }
 
 TEST(EvaluatorTest, evaluateInteger)
@@ -221,8 +221,8 @@ TEST(EvaluatorTest, evaluateFunction)
 	ASSERT_EQ(evaluated->typeName(), "function");
 	auto cast = dynamic_pointer_cast<Function>(evaluated);
 
-	EXPECT_EQ(cast->args()->args().size(), 1);
-	EXPECT_EQ(cast->body()->toString(), "{ (x + 2);  }");
+	EXPECT_EQ(cast->args->args.size(), 1);
+	EXPECT_EQ(cast->body->toString(), "{ (x + 2);  }");
 }
 
 TEST(EvaluatorTest, evaluateCall)
