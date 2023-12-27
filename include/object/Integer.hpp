@@ -17,7 +17,7 @@ public:
 	}
 
 public:
-	int64_t value{};
+	int64_t value;
 };
 
 

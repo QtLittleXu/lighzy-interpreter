@@ -46,7 +46,7 @@ private:
 	shared_ptr<Object> evaluate_id(const shared_ptr<IdentifierExpr>& id, const shared_ptr<Environment>& env);
 	shared_ptr<Object> evaluate_fun(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& args);
 	shared_ptr<Object> evaluate_infix_string(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right);
-	shared_ptr<Object> evaluate_infix_integer(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right);
+	shared_ptr<Object> evaluate_infix_number(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right);
 	vector<shared_ptr<Object>> evaluate_exprs(const shared_ptr<ExpressionsStat>& exprs, const shared_ptr<Environment>& env);
 
 public:

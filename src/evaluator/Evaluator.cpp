@@ -5,6 +5,7 @@
 #include "object/Error.hpp"
 #include "object/ReturnValue.hpp"
 #include "object/String.hpp"
+#include "object/Float.hpp"
 #include "ast/IntegerExpr.hpp"
 #include "ast/BoolExpr.hpp"
 #include "ast/PrefixExpr.hpp"
@@ -16,6 +17,7 @@
 #include "ast/StringExpr.hpp"
 #include "ast/AssignExpr.hpp"
 #include "ast/ExpressionStat.hpp"
+#include "ast/FloatExpr.hpp"
 
 namespace li
 {
@@ -77,13 +79,25 @@ shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& val
 
 shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& value)
 {
-	if (value->type != Object::Type::Integer)
+	switch (value->type)
 	{
-		return prefix_operand_type("-", value->typeName());
+	
+	case Object::Type::Integer:
+	{
+		auto cast = dynamic_pointer_cast<Integer>(value);
+		return make_shared<Integer>(-cast->value);
 	}
 
-	auto cast = dynamic_pointer_cast<Integer>(value);
-	return make_shared<Integer>(-cast->value);
+	case Object::Type::Float:
+	{
+		auto cast = dynamic_pointer_cast<Float>(value);
+		return make_shared<Float>(-cast->value);
+	}
+
+	default:
+		return prefix_operand_type("-", value->typeName());
+
+	}
 }
 
 shared_ptr<Object> Evaluator::prefix_operand_type(const string& operatorName, const string& right)
@@ -147,25 +161,73 @@ const shared_ptr<Bool>& Evaluator::bool_to_object(bool value)
 	return value ? bool_true : bool_false;
 }
 
-shared_ptr<Object> Evaluator::evaluate_infix_integer(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
+shared_ptr<Object> Evaluator::evaluate_infix_number(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
 {
-	auto leftValue = dynamic_pointer_cast<Integer>(left)->value;
-	auto rightValue = dynamic_pointer_cast<Integer>(right)->value;
+	double leftValue = 0;
+	double rightValue = 0;
+
+	switch (left->type)
+	{
+	case Object::Type::Integer:
+		leftValue = dynamic_pointer_cast<Integer>(left)->value;
+		break;
+
+	case Object::Type::Float:
+		leftValue = dynamic_pointer_cast<Float>(left)->value;
+		break;
+
+	default:
+		return infix_operand_type_mismatch(left->typeName(), operatorName, right->typeName());
+	}
+
+	switch (right->type)
+	{
+	case Object::Type::Integer:
+		rightValue = dynamic_pointer_cast<Integer>(right)->value;
+		break;
+
+	case Object::Type::Float:
+		rightValue = dynamic_pointer_cast<Float>(right)->value;
+		break;
+
+	default:
+		return infix_operand_type_mismatch(left->typeName(), operatorName, right->typeName());
+	}
 
 	if (operatorName == "+")
 	{
+		if (left->type == Object::Type::Float || right->type == Object::Type::Float)
+		{
+			return make_shared<Float>(leftValue + rightValue);
+		}
+
 		return make_shared<Integer>(leftValue + rightValue);
 	}
 	if (operatorName == "-")
 	{
+		if (left->type == Object::Type::Float || right->type == Object::Type::Float)
+		{
+			return make_shared<Float>(leftValue - rightValue);
+		}
+
 		return make_shared<Integer>(leftValue - rightValue);
 	}
 	if (operatorName == "*")
 	{
+		if (left->type == Object::Type::Float || right->type == Object::Type::Float)
+		{
+			return make_shared<Float>(leftValue * rightValue);
+		}
+
 		return make_shared<Integer>(leftValue * rightValue);
 	}
 	if (operatorName == "/")
 	{
+		if (left->type == Object::Type::Float || right->type == Object::Type::Float)
+		{
+			return make_shared<Float>(leftValue / rightValue);
+		}
+
 		return make_shared<Integer>(leftValue / rightValue);
 	}
 	if (operatorName == "==")
@@ -232,19 +294,20 @@ shared_ptr<Object> Evaluator::evaluate_infix_string(const shared_ptr<Object>& le
 
 shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
 {
-	if (left->type != right->type)
+	if (left->type == Object::Type::Integer || left->type == Object::Type::Float)
 	{
-		return infix_operand_type_mismatch(left->typeName(), operatorName, right->typeName());
-	}
-
-	if (left->type == Object::Type::Integer)
-	{
-		return evaluate_infix_integer(left, operatorName, right);
+		return evaluate_infix_number(left, operatorName, right);
 	}
 	if (left->type == Object::Type::String)
 	{
 		return evaluate_infix_string(left, operatorName, right);
 	}
+
+	if (left->type != right->type)
+	{
+		return infix_operand_type_mismatch(left->typeName(), operatorName, right->typeName());
+	}
+	// Compare address directly
 	if (operatorName == "==")
 	{
 		return bool_to_object(left == right);
@@ -356,6 +419,12 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 	{
 		auto cast = dynamic_pointer_cast<IntegerExpr>(node);
 		return make_shared<Integer>(cast->value);
+	}
+
+	case Node::Type::Float:
+	{
+		auto cast = dynamic_pointer_cast<FloatExpr>(node);
+		return make_shared<Float>(cast->value);
 	}
 
 	case Node::Type::Bool:
