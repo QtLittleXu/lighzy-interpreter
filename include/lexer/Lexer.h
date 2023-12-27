@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Token.h"
+#include <memory>
 
 namespace li
 {

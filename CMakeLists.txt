@@ -22,7 +22,6 @@ endif()
 set(LIBRARY_SOURCES
     src/lexer/Token.cpp
     src/lexer/Lexer.cpp
-    src/visual/ASTGenerator.cpp
     src/parser/Parser.cpp
     src/object/basic/Object.cpp
     src/evaluator/Evaluator.cpp
@@ -36,9 +35,6 @@ add_library(${LI_LIBRARY} OBJECT ${LIBRARY_SOURCES})
 target_include_directories(${LI_LIBRARY} PUBLIC
     include
     ${PROJECT_BINARY_DIR})
-
-target_link_libraries(${LI_LIBRARY} PRIVATE
-    nlohmann_json::nlohmann_json)
 
 add_executable(${LI_PROGRAM} ${PROGRAM_SOURCES})
 target_link_libraries(${LI_PROGRAM} PRIVATE

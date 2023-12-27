@@ -1,6 +1,9 @@
 #pragma once
 
 #include "lexer/Token.h"
+#include <memory>
+#include <sstream>
+#include <vector>
 
 namespace li
 {
