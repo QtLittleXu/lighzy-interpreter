@@ -83,7 +83,7 @@ shared_ptr<Token> Lexer::parseToken()
 			token = make_shared<Token>(">", Token::Greater);
 			_pos++;
 		}
-		break;
+		return token;
 
 	case '<':
 		if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '=')
@@ -96,7 +96,7 @@ shared_ptr<Token> Lexer::parseToken()
 			token = make_shared<Token>("<", Token::Less);
 			_pos++;
 		}
-		break;
+		return token;
 
 	case '+':
 		token = make_shared<Token>("+", Token::Plus);
@@ -116,7 +116,7 @@ shared_ptr<Token> Lexer::parseToken()
 
 	case '"':
 		token = make_shared<Token>(read_string(), Token::String);
-		break;
+		return token;
 
 	default:
 		if (isalpha(_input.at(_pos)))
@@ -128,7 +128,8 @@ shared_ptr<Token> Lexer::parseToken()
 		else if (isdigit(_input.at(_pos)))
 		{
 			// number
-			token = make_shared<Token>(read_number(), Token::Integer);
+			auto[number, type] = read_number();
+			token = make_shared<Token>(number, type);
 		}
 		else
 		{
@@ -173,21 +174,28 @@ string Lexer::read_string()
     return buffer;
 }
 
-string Lexer::read_number()
+tuple<string, Token::Type> Lexer::read_number()
 {
     string number;
-    while (_pos < _input.size() && isdigit(_input.at(_pos)))
+	bool isFloat = false;
+    while (_pos < _input.size() && (isdigit(_input.at(_pos)) || _input.at(_pos) == '.'))
     {
+		if (_input.at(_pos) == '.') isFloat = true;
+
         number += _input.at(_pos);
         _pos++;
     }
-    return number;
+	return { number, isFloat ? Token::Float : Token::Integer };
+}
+
+bool Lexer::is_whitespace()
+{
+	return _input.at(_pos) == ' ' || _input.at(_pos) == '\t' || _input.at(_pos) == '\n' || _input.at(_pos) == '\r';
 }
 
 void Lexer::skip_whitespace()
 {
-    while (_pos < _input.size() &&
-          (_input.at(_pos) == ' ' || _input.at(_pos) == '\t' || _input.at(_pos) == '\n' || _input.at(_pos) == '\r') )
+    while (_pos < _input.size() && is_whitespace() )
     {
         _pos++;
     }

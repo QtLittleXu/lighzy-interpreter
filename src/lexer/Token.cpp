@@ -19,6 +19,7 @@ const map<Token::Type, string> Token::typeNames =
 
 	{ Integer,			"integer" },
 	{ String,			"string" },
+	{ Float,			"float" },
 
 	{ Equal,			"equal(\"==\")"},
 	{ NotEqual,			"not_equal(\"!=\")"},
