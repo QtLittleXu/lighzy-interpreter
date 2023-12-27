@@ -14,7 +14,7 @@ public:
         Program, Expr, Stat,
         Let, Return, Arguments, Exprs, Block,
         Call, Function, ExprStat, Identifier,
-        Integer, Bool, Infix, Prefix, If, String, Assign
+        Integer, Float, Bool, Infix, Prefix, If, String, Assign
     };
 
 public:

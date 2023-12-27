@@ -10,6 +10,7 @@
 #include "ast/CallExpr.hpp"
 #include "ast/StringExpr.hpp"
 #include "ast/AssignExpr.hpp"
+#include "ast/FloatExpr.hpp"
 
 namespace li::test
 {
@@ -106,6 +107,14 @@ void testIntegerExpr(const shared_ptr<Expr>& expr, const string& value)
 	ASSERT_TRUE(temp);
 
 	EXPECT_EQ(temp->toString(), value);
+}
+
+void testFloatExpr(const shared_ptr<Expr>& expr, const string& value)
+{
+	ASSERT_EQ(expr->type, Node::Type::Float);
+	auto cast = dynamic_pointer_cast<FloatExpr>(expr);
+
+	EXPECT_EQ(cast->toString(), value);
 }
 
 void testPrefixExpr(const shared_ptr<Expr>& expr, const string& operatorName, const string& right)
@@ -283,6 +292,17 @@ TEST(ParserTest, IntegerExpr)
 	ASSERT_TRUE(statement);
 
 	ASSERT_NO_FATAL_FAILURE(testIntegerExpr(statement->expression, "114514"));
+}
+
+TEST(ParserTest, FloatExpr)
+{
+	shared_ptr<Program> program;
+	ASSERT_NO_FATAL_FAILURE(initProgram(program, "1919.81", 1));
+
+	auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
+	ASSERT_TRUE(statement);
+
+	ASSERT_NO_FATAL_FAILURE(testFloatExpr(statement->expression, "1919.81"));
 }
 
 TEST(ParserTest, PrefixExpr)
