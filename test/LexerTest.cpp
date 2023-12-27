@@ -7,7 +7,7 @@ namespace li::test
 
 TEST(LexerTest, parseToken)
 {
-    Lexer lexer("@ identifierString ; , () {} 12345 \"Hello world!\" = == != > >= < <= ! + - * / let fun true false if else return");
+    Lexer lexer("@identifierString;,(){}12345\"Hello world!\"977.21= == != > >= < <=!+-*/let fun true false if else return");
 
 	struct
 	{
@@ -24,6 +24,7 @@ TEST(LexerTest, parseToken)
         { Token::RBrace,			"}" },
         { Token::Integer,			"12345" },
 		{ Token::String,			"Hello world!" },
+		{ Token::Float,				"977.21" },
         { Token::Assign,			"=" },
 		{ Token::Equal,				"==" },
 		{ Token::NotEqual,			"!=" },

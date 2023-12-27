@@ -19,7 +19,7 @@ public:
 		LBrace, RBrace, DoubleQuotes,
 
 		// types
-		Integer, String,
+		Integer, Float, String,
 
 		// operators
 		Assign, Equal, NotEqual, Greater, GreaterEqual, Less, LessEqual, LogicalNegation,

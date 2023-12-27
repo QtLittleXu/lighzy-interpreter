@@ -19,9 +19,10 @@ public:
     }
 
 private:
+    bool is_whitespace();
     string read_identifier();
     string read_string();
-    string read_number();
+    tuple<string, Token::Type> read_number();
     void skip_whitespace();
     static Token::Type lookup_id(const string& id);
 

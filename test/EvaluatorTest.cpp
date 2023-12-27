@@ -7,6 +7,7 @@
 #include "object/Error.hpp"
 #include "object/Function.hpp"
 #include "object/String.hpp"
+#include "object/Float.hpp"
 
 namespace li::test
 {
@@ -28,6 +29,14 @@ void testInteger(const shared_ptr<Object>& obj, int64_t value)
 	ASSERT_EQ(obj->typeName(), "integer");
 
 	auto cast = dynamic_pointer_cast<Integer>(obj);
+	EXPECT_EQ(cast->value, value);
+}
+
+void testFloat(const shared_ptr<Object>& obj, double value)
+{
+	ASSERT_EQ(obj->typeName(), "float");
+
+	auto cast = dynamic_pointer_cast<Float>(obj);
 	EXPECT_EQ(cast->value, value);
 }
 
@@ -83,6 +92,29 @@ TEST(EvaluatorTest, evaluateInteger)
 	{
 		SCOPED_TRACE(input);
 		testInteger(initEvaluator(input), value);
+	}
+}
+
+TEST(EvalautorTest, evaluateFloat)
+{
+	struct Expected
+	{
+		string input;
+		double value;
+	} tests[] = {
+		{ "1.2", 1.2 },
+		{ "0114.5140", 114.514 },
+		{ "-21.2", -21.2 },
+		{ "0.3 + 11.2", 0.3 + 11.2 },
+		{ "1.2 - 0.3", 1.2 - 0.3 },
+		{ "1.2 * 3", 1.2 * 3 },
+		{ "1.44 / 1.2", 1.44 / 1.2 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testFloat(initEvaluator(input), value);
 	}
 }
 

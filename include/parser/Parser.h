@@ -39,7 +39,7 @@ private:
 	string pos_string() const;
 	void no_prefix_parse_fun_error(Token::Type type);
 	bool expect_token_type(Token::Type type);
-	void integer_parse_error();
+	void parse_number_error(const string& msg);
 	void assign_operand_type_error(const string& id);
 
 private:
@@ -54,7 +54,7 @@ private:
 	shared_ptr<ExpressionsStat> parse_exprs();
 
 	shared_ptr<Expr> parse_expr(PrecedenceType precedence);
-	shared_ptr<Expr> parse_intger();
+	shared_ptr<Expr> parse_number();
 	shared_ptr<Expr> parse_identifier();
 	shared_ptr<Expr> parse_prefix();
 	shared_ptr<Expr> parse_group();
@@ -74,7 +74,8 @@ private:
 	vector<string> _outputs;
 
 	const map<Token::Type, prefix_parse_fun> _prefixParseFuns = {
-		{ Token::Integer,			bind(&Parser::parse_intger, this) },
+		{ Token::Integer,			bind(&Parser::parse_number, this) },
+		{ Token::Float,				bind(&Parser::parse_number, this) },
 		{ Token::Identifier,		bind(&Parser::parse_identifier, this) },
 		{ Token::LogicalNegation,	bind(&Parser::parse_prefix, this) },
 		{ Token::LParen,			bind(&Parser::parse_group, this) },

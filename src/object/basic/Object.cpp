@@ -6,6 +6,7 @@ namespace li
 const map<Object::Type, string> Object::typeNames = {
 	{ Type::Null,		"null" },
 	{ Type::Integer,	"integer" },
+	{ Type::Float,		"float" },
 	{ Type::Bool,		"bool" },
 	{ Type::ReturnValue,"return_value" },
 	{ Type::Error,		"error" },

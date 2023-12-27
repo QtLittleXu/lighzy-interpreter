@@ -19,7 +19,7 @@ public:
     }
 
 public:
-    int64_t value;
+    uint64_t value;
 };
 
 

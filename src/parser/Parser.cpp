@@ -9,6 +9,7 @@
 #include "ast/CallExpr.hpp"
 #include "ast/StringExpr.hpp"
 #include "ast/AssignExpr.hpp"
+#include "ast/FloatExpr.hpp"
 #include <memory>
 
 namespace li
@@ -65,11 +66,11 @@ bool Parser::expect_token_type(Token::Type type)
 	return true;
 }
 
-void Parser::integer_parse_error()
+void Parser::parse_number_error(const string& msg)
 {
-	stringstream stream;
-	stream << pos_string() << "invalid integer: " << _current->literal;
-	_outputs.push_back(stream.str());
+	stringstream buffer;
+	buffer << pos_string() << "error: parse number failed, " << msg;
+	_outputs.push_back(buffer.str());
 }
 
 void Parser::assign_operand_type_error(const string& id)
@@ -172,18 +173,46 @@ shared_ptr<ReturnStat> Parser::parse_return_stat()
 	return stat;
 }
 
-shared_ptr<Expr> Parser::parse_intger()
+shared_ptr<Expr> Parser::parse_number()
 {
-	auto expr = make_shared<IntegerExpr>(_current);
 	try
 	{
-		expr->value = stoull(_current->literal);
-		parse_token();
-		return expr;
+		switch (_current->type)
+		{
+
+		case Token::Integer:
+		{
+			auto expr = make_shared<IntegerExpr>(_current);
+			expr->value = stoull(_current->literal);
+			parse_token();
+			return expr;
+		}
+
+		case Token::Float:
+		{
+			auto expr = make_shared<FloatExpr>(_current);
+			expr->value = stod(_current->literal);
+			parse_token();
+			return expr;
+		}
+
+		default:
+			parse_number_error(_current->literal + " was not Token::Integer or Token::Float");
+			parse_token();
+			return nullptr;
+
+		}
 	}
-	catch (exception&)
+	catch (invalid_argument&)
 	{
-		integer_parse_error();
+		parse_number_error(_current->literal + " was not an number");
+		parse_token();
+		return nullptr;
+	}
+	catch (out_of_range&)
+	{
+		parse_number_error(_current->literal + " was out of range of uint64");
+		parse_token();
 		return nullptr;
 	}
 }
