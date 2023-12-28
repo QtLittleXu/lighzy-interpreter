@@ -35,6 +35,7 @@ private:
 
 private:
 	static shared_ptr<Object> len(const vector<shared_ptr<Object>>& objs);
+	static shared_ptr<Object> puts(const vector<shared_ptr<Object>>& objs);
 
 private:
 	const shared_ptr<Bool>& evaluate_bool(const shared_ptr<BoolExpr>& node);

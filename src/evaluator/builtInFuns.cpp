@@ -1,13 +1,15 @@
 #include "evaluator/Evaluator.h"
 #include "object/Integer.hpp"
 #include "object/String.hpp"
+#include <iostream>
 
 namespace li
 {
 
 
 const map<string, shared_ptr<BuiltInFun>> Evaluator::builtInFuns = {
-	{ "len", make_shared<BuiltInFun>(Evaluator::len, "len") }
+	{ "len", make_shared<BuiltInFun>(Evaluator::len, "len") },
+	{ "puts", make_shared<BuiltInFun>(Evaluator::puts, "puts") }
 };
 
 shared_ptr<Object> Evaluator::len(const vector<shared_ptr<Object>>& objs)
@@ -23,6 +25,15 @@ shared_ptr<Object> Evaluator::len(const vector<shared_ptr<Object>>& objs)
 
 	auto value = dynamic_pointer_cast<String>(objs.at(0))->value;
 	return make_shared<Integer>(value.size());
+}
+
+shared_ptr<Object> Evaluator::puts(const vector<shared_ptr<Object>>& objs)
+{
+	for (const auto& obj : objs)
+	{
+		cout << obj->inspect() << '\n';
+	}
+	return null;
 }
 
 
