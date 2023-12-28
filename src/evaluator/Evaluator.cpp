@@ -26,24 +26,6 @@ namespace li
 const shared_ptr<Bool> Evaluator::bool_true = make_shared<Bool>(true);
 const shared_ptr<Bool> Evaluator::bool_false = make_shared<Bool>(false);
 const shared_ptr<Null> Evaluator::null = make_shared<Null>();
-const map<string, shared_ptr<BuiltInFun>> Evaluator::builtInFuns = {
-	{ "len", make_shared<BuiltInFun>(Evaluator::len, "len") }
-};
-
-shared_ptr<Object> Evaluator::len(const vector<shared_ptr<Object>>& objs)
-{
-	if (objs.size() != 1)
-	{
-		return invalid_arguments(string("expected the number of them to be 1, but got ") + to_string(objs.size()));
-	}
-	if (objs.at(0)->type != Object::Type::String)
-	{
-		return invalid_arguments(string("expected the type of them to be string, but got ") + objs.at(0)->typeName());
-	}
-
-	auto value = dynamic_pointer_cast<String>(objs.at(0))->value;
-	return make_shared<Integer>(value.size());
-}
 
 const shared_ptr<Bool>& Evaluator::evaluate_bool(const shared_ptr<BoolExpr>& node)
 {
