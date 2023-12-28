@@ -26,6 +26,24 @@ namespace li
 const shared_ptr<Bool> Evaluator::bool_true = make_shared<Bool>(true);
 const shared_ptr<Bool> Evaluator::bool_false = make_shared<Bool>(false);
 const shared_ptr<Null> Evaluator::null = make_shared<Null>();
+const map<string, shared_ptr<BuiltInFun>> Evaluator::builtInFuns = {
+	{ "len", make_shared<BuiltInFun>(Evaluator::len, "len") }
+};
+
+shared_ptr<Object> Evaluator::len(const vector<shared_ptr<Object>>& objs)
+{
+	if (objs.size() != 1)
+	{
+		return invalid_arguments(string("expected the number of arguments to be 1, but got ") + to_string(objs.size()));
+	}
+	if (objs.at(0)->type != Object::Type::String)
+	{
+		return invalid_arguments(string("expected the type of arguments to be string, but got ") + objs.at(0)->typeName());
+	}
+
+	auto value = dynamic_pointer_cast<String>(objs.at(0))->value;
+	return make_shared<Integer>(value.size());
+}
 
 const shared_ptr<Bool>& Evaluator::evaluate_bool(const shared_ptr<BoolExpr>& node)
 {
@@ -139,6 +157,13 @@ shared_ptr<Object> Evaluator::not_function(const string& type)
 {
 	stringstream buffer;
 	buffer << "error - expected function: " << type;
+	return make_shared<Error>(buffer.str());
+}
+
+shared_ptr<Object> Evaluator::invalid_arguments(const string& msg)
+{
+	stringstream buffer;
+	buffer << "error - invalid arguments: " << msg;
 	return make_shared<Error>(buffer.str());
 }
 
@@ -353,11 +378,18 @@ shared_ptr<Object> Evaluator::evaluate_if(const shared_ptr<IfExpr>& node, const 
 shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpr>& id, const shared_ptr<Environment>& env)
 {
 	auto value = env->get(id->value);
-	if (!value)
+	if (value)
 	{
-		return identifier_not_found(id->value);
+		return value;
 	}
-	return value;
+	
+	auto it = builtInFuns.find(id->value);
+	if (it != builtInFuns.end())
+	{
+		return it->second;
+	}
+
+	return identifier_not_found(id->value);
 }
 
 vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<ExpressionsStat>& exprs, const shared_ptr<Environment>& env)
@@ -386,16 +418,34 @@ const shared_ptr<Environment> Evaluator::bind_fun_args_to_objects(const shared_p
 	return env;
 }
 
-shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& args)
+shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Object>& fun, const vector<shared_ptr<Object>>& args)
 {
-	auto innerEnv = bind_fun_args_to_objects(fun, args);
-	auto evaluated = evaluate(fun->body, innerEnv);
-
-	if (evaluated->type == Object::Type::ReturnValue)
+	switch (fun->type)
 	{
-		return dynamic_pointer_cast<ReturnValue>(evaluated)->value;
+
+	case Object::Type::Function:
+	{
+		auto cast = dynamic_pointer_cast<Function>(fun);
+
+		auto innerEnv = bind_fun_args_to_objects(cast, args);
+		auto evaluated = evaluate(cast->body, innerEnv);
+
+		if (evaluated->type == Object::Type::ReturnValue)
+		{
+			return dynamic_pointer_cast<ReturnValue>(evaluated)->value;
+		}
+		return evaluated;
 	}
-	return evaluated;
+
+	case Object::Type::BuiltInFun:
+	{
+		auto cast = dynamic_pointer_cast<BuiltInFun>(fun);
+		return cast->fun(args);
+	}
+
+	default:
+		return not_function(fun->typeName());
+	}
 }
 
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
@@ -518,10 +568,6 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 		{
 			return fun;
 		}
-		if (fun->type != Object::Type::Function)
-		{
-			return not_function(fun->typeName());
-		}
 
 		auto args = evaluate_exprs(cast->exprs, env);
 		if (args.size() == 1 && args.at(0)->type == Object::Type::Error)
@@ -529,7 +575,7 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 			return args.at(0);
 		}
 		
-		return evaluate_fun(dynamic_pointer_cast<Function>(fun), args);
+		return evaluate_fun(fun, args);
 	}
 
 	case Node::Type::String:

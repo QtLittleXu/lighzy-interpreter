@@ -13,15 +13,24 @@ namespace li::test
 {
 
 
+void checkParserOutputs(const shared_ptr<Parser>& parser);
+
 shared_ptr<Object> initEvaluator(const string& input)
 {
 	auto lexer = make_shared<Lexer>(input);
 	auto parser = make_shared<Parser>(lexer);
 	auto program = parser->parseProgram();
+	checkParserOutputs(parser);
+
 	auto evaluator = make_shared<Evaluator>();
 	auto env = make_shared<Environment>();
 
-	return evaluator->evaluate(program, env);
+	auto obj = evaluator->evaluate(program, env);
+	if (obj->type == Object::Type::Error)
+	{
+		cerr << obj->inspect() << '\n';
+	}
+	return obj;
 }
 
 void testInteger(const shared_ptr<Object>& obj, int64_t value)
@@ -307,6 +316,25 @@ TEST(EvalautorTest, evaluateAssign)
 		{ "let temp = 0; temp = 2; temp", 2 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4;", 4 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testInteger(initEvaluator(input), value);
+	}
+}
+
+TEST(EvalautorTest, evaluateBuiltInFun)
+{
+	struct Expected
+	{
+		string input;
+		int64_t value;
+	} tests[] = {
+		{ R"(len(""))", 0 },
+		{ R"(len("Hello world!"))", 12 },
+		{ R"(let str = "cpp" len(str))", 3 }
 	};
 
 	for (const auto& [input, value] : tests)
