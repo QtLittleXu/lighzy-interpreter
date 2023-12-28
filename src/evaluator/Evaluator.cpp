@@ -34,11 +34,11 @@ shared_ptr<Object> Evaluator::len(const vector<shared_ptr<Object>>& objs)
 {
 	if (objs.size() != 1)
 	{
-		return invalid_arguments(string("expected the number of arguments to be 1, but got ") + to_string(objs.size()));
+		return invalid_arguments(string("expected the number of them to be 1, but got ") + to_string(objs.size()));
 	}
 	if (objs.at(0)->type != Object::Type::String)
 	{
-		return invalid_arguments(string("expected the type of arguments to be string, but got ") + objs.at(0)->typeName());
+		return invalid_arguments(string("expected the type of them to be string, but got ") + objs.at(0)->typeName());
 	}
 
 	auto value = dynamic_pointer_cast<String>(objs.at(0))->value;
@@ -407,15 +407,20 @@ vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<Expression
 	return result;
 }
 
-const shared_ptr<Environment> Evaluator::bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects)
+tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects)
 {
+	if (fun->args->args.size() != objects.size())
+	{
+		return { invalid_arguments(string("expected the number of them to be 2, but got ") + to_string(objects.size())), nullptr};
+	}
+
 	auto env = make_shared<Environment>(fun->env);
 	for (int i = 0; i < fun->args->args.size(); i++)
 	{
 		auto id = fun->args->args.at(i);
 		env->set(id->value, objects.at(i));
 	}
-	return env;
+	return { nullptr, env };
 }
 
 shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Object>& fun, const vector<shared_ptr<Object>>& args)
@@ -427,7 +432,9 @@ shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Object>& fun, const 
 	{
 		auto cast = dynamic_pointer_cast<Function>(fun);
 
-		auto innerEnv = bind_fun_args_to_objects(cast, args);
+		auto [error, innerEnv] = bind_fun_args_to_objects(cast, args);
+		if (error) return error;
+
 		auto evaluated = evaluate(cast->body, innerEnv);
 
 		if (evaluated->type == Object::Type::ReturnValue)

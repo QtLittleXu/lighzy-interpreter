@@ -39,7 +39,7 @@ private:
 private:
 	const shared_ptr<Bool>& evaluate_bool(const shared_ptr<BoolExpr>& node);
 	const shared_ptr<Bool>& bool_to_object(bool value);
-	const shared_ptr<Environment> bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects);
+	tuple<shared_ptr<Object>, shared_ptr<Environment>> bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects);
 
 	shared_ptr<Object> evaluate_prefix(const string& operatorName, const shared_ptr<Object>& right);
 	shared_ptr<Object> evaluate_prefix_bang(const shared_ptr<Object>& value);

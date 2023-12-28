@@ -224,7 +224,10 @@ TEST(EvaluatorTest, evaluateError)
 		{ "if (11 > 2) { return true * false } return 1", "error - unknown infix operator: bool * bool" },
 		{ "a", "error - identifier not found: a" },
 		{ "1 + temp", "error - identifier not found: temp" },
-		{ R"("Hello" - "world!")", "error - unknown infix operator: string - string" }
+		{ R"("Hello" - "world!")", "error - unknown infix operator: string - string" },
+		{ R"(let add = fun(a, b) { a + b }; add(1))", "error - invalid arguments: expected the number of them to be 2, but got 1" },
+		{ R"(len("hello", "world!"))", "error - invalid arguments: expected the number of them to be 1, but got 2" },
+		{ R"(len(12))", "error - invalid arguments: expected the type of them to be string, but got integer" },
 	};
 
 	for (const auto& [input, error] : tests)
