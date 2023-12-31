@@ -10,7 +10,8 @@
 #include "ast/StringExpr.hpp"
 #include "ast/AssignExpr.hpp"
 #include "ast/FloatExpr.hpp"
-#include <memory>
+#include "ast/ArrayExpr.hpp"
+#include "ast/IndexExpr.hpp"
 
 namespace li
 {
@@ -340,24 +341,27 @@ shared_ptr<Expr> Parser::parse_function()
 	return fun;
 }
 
-shared_ptr<ExpressionsStat> Parser::parse_exprs()
+shared_ptr<ExpressionsStat> Parser::parse_exprs(Token::Type end)
 {
 	auto exprs = make_shared<ExpressionsStat>(_current);
-	if (expect_token_type(Token::LParen)) return nullptr;
-	parse_token();
 
-	while (_current->type != Token::RParen && _current->type != Token::Eof)
+	if (_current->type == end)
 	{
-		exprs->expressions.push_back(parse_expr(Lowest));
+		return exprs;
+	}
 
+	exprs->expressions.push_back(parse_expr(Lowest));
+
+	while (_current->type == Token::Comma && _current->type != Token::Eof)
+	{
 		if (_current->type == Token::Comma)
 		{
 			parse_token();
 		}
+
+		exprs->expressions.push_back(parse_expr(Lowest));
 	}
 
-	if (expect_token_type(Token::RParen)) return nullptr;
-	parse_token();
 	return exprs;
 }
 
@@ -365,7 +369,11 @@ shared_ptr<Expr> Parser::parse_call(const shared_ptr<Expr>& fun)
 {
 	auto expr = make_shared<CallExpr>(_current);
 	expr->fun = fun;
-	expr->exprs = parse_exprs();
+	parse_token();
+
+	expr->exprs = parse_exprs(Token::RParen);
+	if (expect_token_type(Token::RParen)) return nullptr;
+	parse_token();
 	return expr;
 }
 
@@ -399,5 +407,30 @@ shared_ptr<Expr> Parser::parse_string()
 	parse_token();
 	return expr;
 }
+
+shared_ptr<Expr> Parser::parse_array()
+{
+	auto expr = make_shared<ArrayExpr>(_current);
+	parse_token();
+
+	expr->elements = parse_exprs(Token::RBracket);
+	if (expect_token_type(Token::RBracket)) return nullptr;
+	parse_token();
+	return expr;
+}
+
+shared_ptr<Expr> Parser::parse_index(const shared_ptr<Expr>& left)
+{
+	auto expr = make_shared<IndexExpr>(_current);
+	expr->left = left;
+	parse_token();
+	
+	expr->index = parse_expr(Lowest);
+	if (expect_token_type(Token::RBracket)) return nullptr;
+	parse_token();
+
+	return expr;
+}
+
 
 }
