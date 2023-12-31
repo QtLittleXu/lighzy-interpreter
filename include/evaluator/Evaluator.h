@@ -12,6 +12,8 @@
 #include "object/Function.hpp"
 #include "object/Environment.hpp"
 #include "object/BuiltInFun.hpp"
+#include "object/Array.hpp"
+#include "object/Integer.hpp"
 
 namespace li
 {
@@ -32,6 +34,7 @@ private:
 	static shared_ptr<Object> identifier_not_found(const string& name);
 	static shared_ptr<Object> not_function(const string& type);
 	static shared_ptr<Object> invalid_arguments(const string& msg);
+	static shared_ptr<Object> index_operand_type(const string& left, const string& index);
 
 private:
 	static shared_ptr<Object> len(const vector<shared_ptr<Object>>& objs);
@@ -54,6 +57,8 @@ private:
 	shared_ptr<Object> evaluate_infix_string(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right);
 	shared_ptr<Object> evaluate_infix_number(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right);
 	vector<shared_ptr<Object>> evaluate_exprs(const shared_ptr<ExpressionsStat>& exprs, const shared_ptr<Environment>& env);
+	shared_ptr<Object> evaluate_index(const shared_ptr<Object>& left, const shared_ptr<Object>& index);
+	shared_ptr<Object> evaluate_index_array(const shared_ptr<Array>& array, const shared_ptr<Integer>& index);
 
 public:
 	static const shared_ptr<Bool> bool_true;

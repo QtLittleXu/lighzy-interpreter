@@ -12,7 +12,8 @@ const map<Object::Type, string> Object::typeNames = {
 	{ Type::Error,		"error" },
 	{ Type::Function,	"function" },
 	{ Type::String,		"string" },
-	{ Type::BuiltInFun,	"built_in_fun" }
+	{ Type::BuiltInFun,	"built_in_fun" },
+	{ Type::Array,		"array" }
 };
 
 
