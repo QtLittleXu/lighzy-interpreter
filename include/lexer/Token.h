@@ -18,6 +18,7 @@ public:
 		Illegal, Eof, Identifier, Semicolon, Comma,
 		LParen, RParen,
 		LBrace, RBrace, DoubleQuotes,
+		LBracket, RBracket,
 
 		// types
 		Integer, Float, String,

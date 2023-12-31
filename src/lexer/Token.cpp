@@ -16,6 +16,8 @@ const map<Token::Type, string> Token::typeNames =
 	{ LBrace,			"left_brace(\"{\")"},
 	{ RBrace,			"right_brace(\"}\")"},
 	{ DoubleQuotes,		"double_quotes(\")" },
+	{ LBracket,			"left_bracket(\"[\")" },
+	{ RBracket,			"right_bracket(\"]\")" },
 
 	{ Integer,			"integer" },
 	{ String,			"string" },
