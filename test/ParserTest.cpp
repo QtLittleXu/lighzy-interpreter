@@ -13,6 +13,7 @@
 #include "ast/FloatExpr.hpp"
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
+#include "ast/WhileStat.hpp"
 
 namespace li::test
 {
@@ -547,6 +548,19 @@ TEST(ParserTest, IndexExpr)
 
 	ASSERT_NO_FATAL_FAILURE(testIdentifierExpr(indexExpr->left, "testArray"));
 	ASSERT_NO_FATAL_FAILURE(testIntegerExpr(indexExpr->index, "12"));
+}
+
+TEST(ParserTest, WhileStat)
+{
+	shared_ptr<Program> program;
+	ASSERT_NO_FATAL_FAILURE(initProgram(program, "while(a < 2) { a + 1 }", 1));
+
+    auto statement = dynamic_pointer_cast<WhileStat>(program->statements.at(0));
+	ASSERT_TRUE(statement);
+
+	ASSERT_NO_FATAL_FAILURE(testInfixExpr(statement->condition, "a", "<", "2"));
+	auto expr = dynamic_pointer_cast<ExpressionStat>(statement->body->statements.at(0));
+	ASSERT_NO_FATAL_FAILURE(testInfixExpr(expr->expression, "a", "+", "1"));
 }
 
 

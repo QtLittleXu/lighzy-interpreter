@@ -112,6 +112,9 @@ shared_ptr<Stat> Parser::parse_statement()
 	case Token::Return:
 		return parse_return_stat();
 
+	case Token::While:
+		return parse_while_stat();
+
 	default:
 		return parse_expr_stat();
 
@@ -122,6 +125,21 @@ shared_ptr<Stat> Parser::parse_expr_stat()
 {
     auto stat = make_shared<ExpressionStat>(_current);
 	stat->expression = parse_expr(Lowest);
+	return stat;
+}
+
+shared_ptr<WhileStat> Parser::parse_while_stat()
+{
+	auto stat = make_shared<WhileStat>(_current);
+	parse_token();
+	if (expect_token_type(Token::LParen)) return nullptr;
+	parse_token();
+
+	stat->condition = parse_expr(Lowest);
+	if (expect_token_type(Token::RParen)) return nullptr;
+	parse_token();
+
+	stat->body = parse_block_stat();
 	return stat;
 }
 
