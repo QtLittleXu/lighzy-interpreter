@@ -6,6 +6,7 @@
 #include "object/ReturnValue.hpp"
 #include "object/String.hpp"
 #include "object/Float.hpp"
+#include "object/Array.hpp"
 #include "ast/IntegerExpr.hpp"
 #include "ast/BoolExpr.hpp"
 #include "ast/PrefixExpr.hpp"
@@ -18,6 +19,8 @@
 #include "ast/AssignExpr.hpp"
 #include "ast/ExpressionStat.hpp"
 #include "ast/FloatExpr.hpp"
+#include "ast/ArrayExpr.hpp"
+#include "ast/IndexExpr.hpp"
 
 namespace li
 {
@@ -146,6 +149,13 @@ shared_ptr<Object> Evaluator::invalid_arguments(const string& msg)
 {
 	stringstream buffer;
 	buffer << "error - invalid arguments: " << msg;
+	return make_shared<Error>(buffer.str());
+}
+
+shared_ptr<Object> Evaluator::index_operand_type(const string& left, const string& index)
+{
+	stringstream buffer;
+	buffer << "error - index operand type: " << left << "[" << index << "]";
 	return make_shared<Error>(buffer.str());
 }
 
@@ -437,6 +447,26 @@ shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Object>& fun, const 
 	}
 }
 
+shared_ptr<Object> Evaluator::evaluate_index(const shared_ptr<Object>& left, const shared_ptr<Object>& index)
+{
+	if (left->type == Object::Type::Array && index->type == Object::Type::Integer)
+	{
+		return evaluate_index_array(dynamic_pointer_cast<Array>(left), dynamic_pointer_cast<Integer>(index));
+	}
+
+	return index_operand_type(left->typeName(), index->typeName());
+}
+
+shared_ptr<Object> Evaluator::evaluate_index_array(const shared_ptr<Array>& array, const shared_ptr<Integer>& index)
+{
+	size_t size = array->elements.size();
+	if (index->value >= size || index->value < 0)
+	{
+		return null;
+	}
+	return array->elements.at(index->value);
+}
+
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
 {
 	switch (node->type)
@@ -590,6 +620,36 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
 		env->set(name, value);
 		return value;
+	}
+
+	case Node::Type::Array:
+	{
+		auto cast = dynamic_pointer_cast<ArrayExpr>(node);
+		auto elements = evaluate_exprs(cast->elements, env);
+		if (elements.size() == 1 && elements.at(0)->type == Object::Type::Error)
+		{
+			return elements.at(0);
+		}
+
+		return make_shared<Array>(elements);
+	}
+
+	case Node::Type::Index:
+	{
+		auto cast = dynamic_pointer_cast<IndexExpr>(node);
+		auto left = evaluate(cast->left, env);
+		if (left->type == Object::Type::Error)
+		{
+			return left;
+		}
+
+		auto index = evaluate(cast->index, env);
+		if (index->type == Object::Type::Error)
+		{
+			return index;
+		}
+
+		return evaluate_index(left, index);
 	}
 
 	default:

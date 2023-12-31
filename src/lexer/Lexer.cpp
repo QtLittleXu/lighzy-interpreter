@@ -118,6 +118,14 @@ shared_ptr<Token> Lexer::parseToken()
 		token = make_shared<Token>(read_string(), Token::String);
 		return token;
 
+	case '[':
+		token = make_shared<Token>("[", Token::LBracket);
+		break;
+
+	case ']':
+		token = make_shared<Token>("]", Token::RBracket);
+		break;
+
 	default:
 		if (isalpha(_input.at(_pos)))
 		{

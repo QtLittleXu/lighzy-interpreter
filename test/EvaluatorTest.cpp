@@ -8,6 +8,7 @@
 #include "object/Function.hpp"
 #include "object/String.hpp"
 #include "object/Float.hpp"
+#include "object/Array.hpp"
 
 namespace li::test
 {
@@ -227,7 +228,7 @@ TEST(EvaluatorTest, evaluateError)
 		{ R"("Hello" - "world!")", "error - unknown infix operator: string - string" },
 		{ R"(let add = fun(a, b) { a + b }; add(1))", "error - invalid arguments: expected the number of them to be 2, but got 1" },
 		{ R"(len("hello", "world!"))", "error - invalid arguments: expected the number of them to be 1, but got 2" },
-		{ R"(len(12))", "error - invalid arguments: expected the type of them to be string, but got integer" },
+		{ R"(len(12))", "error - invalid arguments: expected the type of them to be string, but got integer" }
 	};
 
 	for (const auto& [input, error] : tests)
@@ -345,6 +346,45 @@ TEST(EvalautorTest, evaluateBuiltInFun)
 		SCOPED_TRACE(input);
 		testInteger(initEvaluator(input), value);
 	}
+}
+
+TEST(EvaluatorTest, evaluateArray)
+{
+	string input = R"([1, "Hello world!", 12 / 3])";
+	auto evaluated = initEvaluator(input);
+
+	ASSERT_EQ(evaluated->typeName(), "array");
+	auto cast = dynamic_pointer_cast<Array>(evaluated);
+	ASSERT_EQ(cast->elements.size(), 3);
+
+	testInteger(cast->elements.at(0), 1);
+	testString(cast->elements.at(1), "Hello world!");
+	testInteger(cast->elements.at(2), 4);
+}
+
+TEST(EvalautorTest, evaluateIndex)
+{
+	struct Expected
+	{
+		string input;
+		int64_t value;
+	} tests[] = {
+		{ "[2, 4, 6][0]", 2 },
+		{ "[2, 4, 6][1]", 4 },
+		{ "[2, 4, 6][2]", 6 },
+		{ "let array = [2, 4, 6]; array[2]", 6 },
+		{ "let array = [2, 4, 6]; let sum = array[1] + array[2]; sum", 10 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testInteger(initEvaluator(input), value);
+	}
+
+	// Out of range will return null
+	testNull(initEvaluator("[2, 4, 6][3]"));
+	testNull(initEvaluator("[2, 4, 6][-1]"));
 }
 
 

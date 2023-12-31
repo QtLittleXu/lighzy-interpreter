@@ -20,7 +20,7 @@ public:
 	using infix_parse_fun = function<shared_ptr<Expr>(const shared_ptr<Expr>&)>;
 	enum PrecedenceType
 	{
-		Lowest, Equals, LessGreater, Sum, Product, Assign, Prefix, Call
+		Lowest, Equals, LessGreater, Sum, Product, Assign, Prefix, Index, Call
 	};
 
 public:
@@ -51,7 +51,7 @@ private:
 	shared_ptr<BlockStat> parse_block_stat();
 
 	shared_ptr<ArgumentsStat> parse_args();
-	shared_ptr<ExpressionsStat> parse_exprs();
+	shared_ptr<ExpressionsStat> parse_exprs(Token::Type end);
 
 	shared_ptr<Expr> parse_expr(PrecedenceType precedence);
 	shared_ptr<Expr> parse_number();
@@ -62,10 +62,12 @@ private:
 	shared_ptr<Expr> parse_if();
 	shared_ptr<Expr> parse_function();
 	shared_ptr<Expr> parse_string();
+	shared_ptr<Expr> parse_array();
 
 	shared_ptr<Expr> parse_infix(const shared_ptr<Expr>& left);
 	shared_ptr<Expr> parse_call(const shared_ptr<Expr>& fun);
 	shared_ptr<Expr> parse_assign(const shared_ptr<Expr>& id);
+	shared_ptr<Expr> parse_index(const shared_ptr<Expr>& left);
 
 private:
 	shared_ptr<Lexer> _lexer;
@@ -84,7 +86,8 @@ private:
 		{ Token::False,				bind(&Parser::parse_bool, this) },
 		{ Token::If,				bind(&Parser::parse_if, this) },
 		{ Token::String,			bind(&Parser::parse_string, this) },
-		{ Token::Fun,				bind(&Parser::parse_function, this) }
+		{ Token::Fun,				bind(&Parser::parse_function, this) },
+		{ Token::LBracket,			bind(&Parser::parse_array, this) }
 	};
 
 	const map<Token::Type, infix_parse_fun> _infixParseFuns = {
@@ -100,6 +103,7 @@ private:
 		{ Token::LessEqual,		bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::LParen,		bind(&Parser::parse_call, this, placeholders::_1) },
 		{ Token::Assign,		bind(&Parser::parse_assign, this, placeholders::_1) },
+		{ Token::LBracket,		bind(&Parser::parse_index, this, placeholders::_1) }
 	};
 
 	const map<Token::Type, PrecedenceType> _tokenTypePrecedences = {
@@ -115,7 +119,8 @@ private:
 		{ Token::Less,				LessGreater },
 		{ Token::LessEqual,			LessGreater },
 		{ Token::LParen,			Call },
-		{ Token::Assign,			Assign }
+		{ Token::Assign,			Assign },
+		{ Token::LBracket,			Index }
 	};
 };
 

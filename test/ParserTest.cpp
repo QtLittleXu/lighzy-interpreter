@@ -11,6 +11,8 @@
 #include "ast/StringExpr.hpp"
 #include "ast/AssignExpr.hpp"
 #include "ast/FloatExpr.hpp"
+#include "ast/ArrayExpr.hpp"
+#include "ast/IndexExpr.hpp"
 
 namespace li::test
 {
@@ -207,7 +209,9 @@ TEST(ParserTest, operatorPrecedence)
 		{ "1 - 2 * 3 + 4", "((1 - (2 * 3)) + 4)" },
 		{ "1 + if (a > b) { a } else { b }", "(1 + if ((a > b)) { a;  } else { b;  })" },
 		{ "add(1, 2) + 3", "(add(1, 2) + 3)"},
-		{ "3 + 4 / add(1, 2)", "(3 + (4 / add(1, 2)))" }
+		{ "3 + 4 / add(1, 2)", "(3 + (4 / add(1, 2)))" },
+		{ "1 + [a, b, c][2] * 2", "(1 + ([a, b, c][2] * 2))" },
+		{ "testFun(12)[1]",  "testFun(12)[1]"}
 	};
 
 	for (const auto& [input, result] : tests)
@@ -515,6 +519,34 @@ TEST(ParserTest, errorHandling)
 
 		EXPECT_EQ(parser->outputs().at(0), error);
 	}
+}
+
+TEST(ParserTest, ArrayExpr)
+{
+	shared_ptr<Program> program;
+	ASSERT_NO_FATAL_FAILURE(initProgram(program, R"([1, 1 * 3, "Hello world!"])", 1));
+
+    auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
+	ASSERT_TRUE(statement);
+
+	auto exprs = dynamic_pointer_cast<ArrayExpr>(statement->expression)->elements->expressions;
+	ASSERT_NO_FATAL_FAILURE(testIntegerExpr(exprs.at(0), "1"));
+	ASSERT_NO_FATAL_FAILURE(testInfixExpr(exprs.at(1), "1", "*", "3"));
+	ASSERT_NO_FATAL_FAILURE(testStringExpr(exprs.at(2), "Hello world!"));
+}
+
+TEST(ParserTest, IndexExpr)
+{
+	shared_ptr<Program> program;
+	ASSERT_NO_FATAL_FAILURE(initProgram(program, "testArray[12]", 1));
+
+    auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
+	ASSERT_TRUE(statement);
+
+	auto indexExpr = dynamic_pointer_cast<IndexExpr>(statement->expression);
+
+	ASSERT_NO_FATAL_FAILURE(testIdentifierExpr(indexExpr->left, "testArray"));
+	ASSERT_NO_FATAL_FAILURE(testIntegerExpr(indexExpr->index, "12"));
 }
 
 
