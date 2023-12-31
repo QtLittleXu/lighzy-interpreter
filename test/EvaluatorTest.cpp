@@ -387,5 +387,14 @@ TEST(EvalautorTest, evaluateIndex)
 	testNull(initEvaluator("[2, 4, 6][-1]"));
 }
 
+TEST(EvalautorTest, evaluateWhile)
+{
+	string input = "let sum = 0; let index = 1; while (index <= 100) { sum = sum + index; index = index + 1 }; sum";
+	auto evaluated = initEvaluator(input);
+	ASSERT_EQ(evaluated->typeName(), "integer");
+
+	testInteger(evaluated, 5050);
+}
+
 
 }
