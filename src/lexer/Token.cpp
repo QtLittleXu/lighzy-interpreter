@@ -40,7 +40,8 @@ const map<Token::Type, string> Token::typeNames =
 	{ False,			"false" },
 	{ If,				"if" },
 	{ Else,				"else" },
-	{ Return,			"return" }
+	{ Return,			"return" },
+	{ While,			"while" }
 };
 
 
