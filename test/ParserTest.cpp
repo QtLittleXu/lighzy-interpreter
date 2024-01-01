@@ -66,7 +66,7 @@ void checkParserOutputs(const shared_ptr<Parser>& parser)
 	EXPECT_TRUE(parser->outputs().empty());
 }
 
-void initProgram(shared_ptr<Program>& program, const string& input, uint statementSize)
+void initProgram(shared_ptr<Program>& program, const string& input, size_t statementSize)
 {
 	auto lexer = make_shared<Lexer>(input);
 	auto parser = make_shared<Parser>(lexer);
