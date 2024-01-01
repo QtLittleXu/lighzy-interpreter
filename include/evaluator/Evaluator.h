@@ -12,7 +12,7 @@
 #include "object/Null.hpp"
 #include "object/Function.hpp"
 #include "object/Environment.hpp"
-#include "object/BuiltInFun.hpp"
+#include "object/BuiltinFun.hpp"
 #include "object/Array.hpp"
 #include "object/Integer.hpp"
 
@@ -25,7 +25,7 @@ class Evaluator
 public:
 	shared_ptr<Object> evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env);
 
-private:
+public:
 	bool is_true(const shared_ptr<Object>& obj);
 
 	static shared_ptr<Object> unknown_prefix(const string& operatorName, const string& right);
@@ -36,10 +36,6 @@ private:
 	static shared_ptr<Object> not_function(const string& type);
 	static shared_ptr<Object> invalid_arguments(const string& msg);
 	static shared_ptr<Object> index_operand_type(const string& left, const string& index);
-
-private:
-	static shared_ptr<Object> len(const vector<shared_ptr<Object>>& objs);
-	static shared_ptr<Object> puts(const vector<shared_ptr<Object>>& objs);
 
 private:
 	const shared_ptr<Bool>& evaluate_bool(const shared_ptr<BoolExpr>& node);
@@ -65,7 +61,7 @@ public:
 	static const shared_ptr<Bool> bool_true;
 	static const shared_ptr<Bool> bool_false;
 	static const shared_ptr<Null> null;
-	static const map<string, shared_ptr<BuiltInFun>> builtInFuns;
+	static const map<string, shared_ptr<BuiltinFun>> builtinFuns;
 };
 
 

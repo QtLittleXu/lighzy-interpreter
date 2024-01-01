@@ -105,7 +105,7 @@ TEST(EvaluatorTest, evaluateInteger)
 	}
 }
 
-TEST(EvalautorTest, evaluateFloat)
+TEST(EvaluatorTest, evaluateFloat)
 {
 	struct Expected
 	{
@@ -163,7 +163,7 @@ TEST(EvaluatorTest, evaluateBool)
 	}
 }
 
-TEST(EvalautorTest, evaluateIf)
+TEST(EvaluatorTest, evaluateIf)
 {
 	struct Expected
 	{
@@ -192,7 +192,7 @@ TEST(EvalautorTest, evaluateIf)
 	}
 }
 
-TEST(EvaluatorTest, evalauteReturn)
+TEST(EvaluatorTest, evaluateReturn)
 {
 	struct Expected
 	{
@@ -227,8 +227,8 @@ TEST(EvaluatorTest, evaluateError)
 		{ "1 + temp", "error - identifier not found: temp" },
 		{ R"("Hello" - "world!")", "error - unknown infix operator: string - string" },
 		{ R"(let add = fun(a, b) { a + b }; add(1))", "error - invalid arguments: expected the number of them to be 2, but got 1" },
-		{ R"(len("hello", "world!"))", "error - invalid arguments: expected the number of them to be 1, but got 2" },
-		{ R"(len(12))", "error - invalid arguments: expected the type of them to be string, but got integer" }
+		{ R"(_builtin_(1, "hello", "world!"))", "error - invalid arguments: expected the number of them to be 1, but got 2" },
+		{ R"(_builtin_(1, 12))", "error - invalid arguments: unknown function for argument type integer" }
 	};
 
 	for (const auto& [input, error] : tests)
@@ -291,7 +291,7 @@ TEST(EvaluatorTest, evaluateCall)
 	}
 }
 
-TEST(EvalautorTest, evaluateString)
+TEST(EvaluatorTest, evaluateString)
 {
 	struct Expected
 	{
@@ -309,7 +309,7 @@ TEST(EvalautorTest, evaluateString)
 	}
 }
 
-TEST(EvalautorTest, evaluateAssign)
+TEST(EvaluatorTest, evaluateAssign)
 {
 	struct Expected
 	{
@@ -329,16 +329,15 @@ TEST(EvalautorTest, evaluateAssign)
 	}
 }
 
-TEST(EvalautorTest, evaluateBuiltInFun)
+TEST(EvaluatorTest, evaluateBuiltInFun)
 {
 	struct Expected
 	{
 		string input;
 		int64_t value;
 	} tests[] = {
-		{ R"(len(""))", 0 },
-		{ R"(len("Hello world!"))", 12 },
-		{ R"(let str = "cpp" len(str))", 3 }
+		{ R"(_builtin_(1, "Hello world!"))", 12 },
+		{ R"(let str = "abcd efg"; _builtin_(1, str))", 8 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -362,7 +361,7 @@ TEST(EvaluatorTest, evaluateArray)
 	testInteger(cast->elements.at(2), 4);
 }
 
-TEST(EvalautorTest, evaluateIndex)
+TEST(EvaluatorTest, evaluateIndex)
 {
 	struct Expected
 	{
