@@ -370,10 +370,10 @@ shared_ptr<Object> Evaluator::evaluate_if(const shared_ptr<IfExpr>& node, const 
 
 shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpr>& id, const shared_ptr<Environment>& env)
 {
-	auto value = env->get(id->value);
-	if (value)
+	auto* value = env->get(id->value);
+	if (value != nullptr)
 	{
-		return value;
+		return *value;
 	}
 	
 	auto it = builtinFuns.find(id->value);
@@ -411,7 +411,7 @@ tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_o
 	for (int i = 0; i < fun->args->args.size(); i++)
 	{
 		auto id = fun->args->args.at(i);
-		env->set(id->value, objects.at(i));
+		env->add(id->value, objects.at(i));
 	}
 	return { nullptr, env };
 }
@@ -564,7 +564,7 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 			return value;
 		}
 
-		env->set(cast->name->value, value);
+		env->add(cast->name->value, value);
 		return null;
 	}
 

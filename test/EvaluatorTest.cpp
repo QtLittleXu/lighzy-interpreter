@@ -319,7 +319,8 @@ TEST(EvaluatorTest, evaluateAssign)
 		{ "let num = 11; num = 1", 1 },
 		{ "let temp = 0; temp = 2; temp", 2 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4;", 4 },
-		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 }
+		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 },
+		{ "let dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 }
 	};
 
 	for (const auto& [input, value] : tests)
