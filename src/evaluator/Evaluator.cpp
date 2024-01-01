@@ -375,8 +375,8 @@ shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpr>& id, 
 		return value;
 	}
 	
-	auto it = builtInFuns.find(id->value);
-	if (it != builtInFuns.end())
+	auto it = builtinFuns.find(id->value);
+	if (it != builtinFuns.end())
 	{
 		return it->second;
 	}
@@ -436,9 +436,9 @@ shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Object>& fun, const 
 		return evaluated;
 	}
 
-	case Object::Type::BuiltInFun:
+	case Object::Type::BuiltinFun:
 	{
-		auto cast = dynamic_pointer_cast<BuiltInFun>(fun);
+		auto cast = dynamic_pointer_cast<BuiltinFun>(fun);
 		return cast->fun(args);
 	}
 

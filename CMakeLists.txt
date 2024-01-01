@@ -25,7 +25,7 @@ set(LIBRARY_SOURCES
     src/parser/Parser.cpp
     src/object/basic/Object.cpp
     src/evaluator/Evaluator.cpp
-    src/evaluator/builtInFuns.cpp
+    src/evaluator/BuiltinFuns.cpp
 )
 
 set(PROGRAM_SOURCES

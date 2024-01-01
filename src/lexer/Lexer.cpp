@@ -127,7 +127,7 @@ shared_ptr<Token> Lexer::parseToken()
 		break;
 
 	default:
-		if (isalpha(_input.at(_pos)))
+		if (isalpha(_input.at(_pos)) || _input.at(_pos) == '_')
 		{
 			// identifier or keyword
 			auto id = read_identifier();
@@ -156,7 +156,7 @@ shared_ptr<Token> Lexer::parseToken()
 string Lexer::read_identifier()
 {
     string identifier;
-    while (_pos < _input.size() && isalnum(_input.at(_pos)))
+    while (_pos < _input.size() && (isalnum(_input.at(_pos)) || _input.at(_pos) == '_'))
     {
         identifier += _input.at(_pos);
         _pos++;
