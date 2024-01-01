@@ -6,6 +6,7 @@
 #include "ast/ExpressionsStat.hpp"
 #include "ast/Program.hpp"
 #include "ast/BlockStat.hpp"
+#include "ast/WhileStat.hpp"
 #include "object/basic/Object.h"
 #include "object/Bool.hpp"
 #include "object/Null.hpp"

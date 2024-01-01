@@ -18,7 +18,7 @@ public:
         Let, Return, Arguments, Exprs, Block,
         Call, Function, ExprStat, Identifier,
         Integer, Float, Bool, Infix, Prefix, If, String, Assign,
-        Array, Index
+        Array, Index, While
     };
 
 public:

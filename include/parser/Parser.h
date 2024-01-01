@@ -7,6 +7,7 @@
 #include "ast/BlockStat.hpp"
 #include "ast/ArgumentsStat.hpp"
 #include "ast/ExpressionsStat.hpp"
+#include "ast/WhileStat.hpp"
 #include <functional>
 
 namespace li
@@ -49,6 +50,7 @@ private:
 	shared_ptr<LetStat> parse_let_stat();
 	shared_ptr<ReturnStat> parse_return_stat();
 	shared_ptr<BlockStat> parse_block_stat();
+	shared_ptr<WhileStat> parse_while_stat();
 
 	shared_ptr<ArgumentsStat> parse_args();
 	shared_ptr<ExpressionsStat> parse_exprs(Token::Type end);

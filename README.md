@@ -20,6 +20,7 @@ lighzy-interpreter 是专门用来解释 Lighzy 语言的跨平台解释器，�
 
 - 变量定义
 - 返回值
+- While 循环
 
 ### 数据类型
 

@@ -21,6 +21,7 @@
 #include "ast/FloatExpr.hpp"
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
+#include "ast/WhileStat.hpp"
 
 namespace li
 {
@@ -606,7 +607,7 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 	case Node::Type::Assign:
 	{
 		auto cast = dynamic_pointer_cast<AssignExpr>(node);
-		auto id = evaluate(cast->id, env);
+		auto id = evaluate(cast->id, env);		// This code is only for detecting whether identifier is found
 		auto value = evaluate(cast->value, env);
 		if (id->type == Object::Type::Error)
 		{
@@ -650,6 +651,16 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 		}
 
 		return evaluate_index(left, index);
+	}
+
+	case Node::Type::While:
+	{
+		auto cast = dynamic_pointer_cast<WhileStat>(node);
+		while (is_true(evaluate(cast->condition, env)))
+		{
+			evaluate(cast->body, make_shared<Environment>(env));
+		}
+		return null;
 	}
 
 	default:

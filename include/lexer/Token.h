@@ -28,7 +28,7 @@ public:
 		Plus, Minus, Asterisk, Slash,
 
 		// keywords
-		Let, Fun, True, False, If, Else, Return
+		Let, Fun, True, False, If, Else, Return, While
 	};
 
 public:
