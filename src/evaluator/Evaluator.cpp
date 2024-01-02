@@ -516,9 +516,65 @@ shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const stri
 	return unknown_prefix(operatorName, value->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_assign(const string& name, const string& operatorName, const shared_ptr<Object>& value, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_assign(const shared_ptr<AssignExpr>& expr, const shared_ptr<Object>& value, const shared_ptr<Environment>& env)
 {
-	auto& id = *env->get(name);
+	switch (expr->id->type)
+	{
+	
+	case Node::Type::Index:
+		return evaluate_assign_index(dynamic_pointer_cast<IndexExpr>(expr->id), value, expr->operatorName, env);
+
+	case Node::Type::Identifier:
+	{
+		string name = dynamic_pointer_cast<IdentifierExpr>(expr->id)->value;
+		auto& id = *env->get(name);
+
+		if (expr->operatorName == "=")
+		{
+			return id = value;
+		}
+		if (expr->operatorName == "+=")
+		{
+			return id = evaluate_infix(id, "+", value);
+		}
+		if (expr->operatorName == "-=")
+		{
+			return id = evaluate_infix(id, "-", value);
+		}
+		if (expr->operatorName == "*=")
+		{
+			return id = evaluate_infix(id, "*", value);
+		}
+		if (expr->operatorName == "/=")
+		{
+			return id = evaluate_infix(id, "/", value);
+		}
+		if (expr->operatorName == "%=")
+		{
+			return id = evaluate_infix(id, "%", value);
+		}
+
+		return operand_type_error("assign", expr->operatorName, value->typeName());
+	}
+
+	default:
+		return null;
+
+	}
+}
+
+shared_ptr<Object> Evaluator::evaluate_assign_index(const shared_ptr<IndexExpr>& expr, const shared_ptr<Object>& value, const string& operatorName, const shared_ptr<Environment>& env)
+{
+	auto array = dynamic_pointer_cast<Array>(*env->get(expr->left->literal()));
+	auto left = evaluate(expr->index, env);
+
+	if (left->type == Object::Type::Error)
+	{
+		return left;
+	}
+
+	auto index = dynamic_pointer_cast<Integer>(left)->value;
+	auto& id = array->elements.at(index);
 
 	if (operatorName == "=")
 	{
@@ -698,8 +754,8 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 			return value;
 		}
 
-		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
-		return evaluate_assign(name, cast->operatorName, value, env);
+		// Where bugs occur: segment fault when the id of the AssignExor is IndexExpr
+		return evaluate_assign(cast, value, env);
 	}
 
 	case Node::Type::Array:

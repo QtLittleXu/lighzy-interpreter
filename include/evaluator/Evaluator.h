@@ -6,6 +6,8 @@
 #include "ast/ExpressionsStat.hpp"
 #include "ast/Program.hpp"
 #include "ast/BlockStat.hpp"
+#include "ast/IndexExpr.hpp"
+#include "ast/AssignExpr.hpp"
 #include "object/basic/Object.h"
 #include "object/Bool.hpp"
 #include "object/Null.hpp"
@@ -56,7 +58,8 @@ private:
 	shared_ptr<Object> evaluate_index(const shared_ptr<Object>& left, const shared_ptr<Object>& index);
 	shared_ptr<Object> evaluate_index_array(const shared_ptr<Array>& array, const shared_ptr<Integer>& index);
 	shared_ptr<Object> evaluate_in_decrement(const string& id, const string& operatorName, const shared_ptr<Environment>& env);
-	shared_ptr<Object> evaluate_assign(const string& name, const string& operatorName, const shared_ptr<Object>& value, const shared_ptr<Environment>& env);
+	shared_ptr<Object> evaluate_assign(const shared_ptr<AssignExpr>& expr, const shared_ptr<Object>& value, const shared_ptr<Environment>& env);
+	shared_ptr<Object> evaluate_assign_index(const shared_ptr<IndexExpr>& expr, const shared_ptr<Object>& value, const string& operatorName, const shared_ptr<Environment>& env);
 
 public:
 	static const shared_ptr<Bool> bool_true;

@@ -330,7 +330,7 @@ TEST(EvaluatorTest, evaluateAssign)
 		{ "let a = 12; a /= 2", 6 },
 		{ "let a = 12; a /= 2; a", 6 },
 		{ "let a = 12; a %= 5", 2 },
-		{ "let a = 12; a %= 5; a", 2 },
+		{ "let a = 12; a %= 5; a", 2 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -383,7 +383,11 @@ TEST(EvaluatorTest, evaluateIndex)
 		{ "[2, 4, 6][1]", 4 },
 		{ "[2, 4, 6][2]", 6 },
 		{ "let array = [2, 4, 6]; array[2]", 6 },
-		{ "let array = [2, 4, 6]; let sum = array[1] + array[2]; sum", 10 }
+		{ "let array = [2, 4, 6]; let sum = array[1] + array[2]; sum", 10 },
+		{ "let a = [1, 2, 3]; a[1] = 11", 11 },
+		{ "let a = [1, 2, 3]; a[1] = 11; a[1]", 11 },
+		{ "let a = [2, 4, 6]; a[2] += 12", 18 },
+		{ "let a = [2, 4, 6]; a[2] += 12; a[2]", 18 }
 	};
 
 	for (const auto& [input, value] : tests)
