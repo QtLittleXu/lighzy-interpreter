@@ -91,11 +91,11 @@ TEST(EvaluatorTest, evaluateInteger)
 		{ "11", 11 },
 		{ "114514", 114514 },
 		{ "-1", -1 },
-		{ "--1", 1 },
 		{ "1 + 1", 2 },
 		{ "2 - 1", 1 },
 		{ "12 * 12", 144 },
-		{ "33 / 3", 11 }
+		{ "33 / 3", 11 },
+		{ "12 % 5", 2 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -321,8 +321,16 @@ TEST(EvaluatorTest, evaluateAssign)
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4;", 4 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 },
 		{ "let dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 },
-		{ "let a = [1, 2, 3]; a[1] = 11", 11 },
-		{ "let a = [1, 2, 3]; a[1] = 11; a[1]", 11 }
+		{ "let a = 12; a += 2", 14 },
+		{ "let a = 12; a += 2; a", 14 },
+		{ "let a = 12; a -= 2", 10 },
+		{ "let a = 12; a -= 2; a", 10 },
+		{ "let a = 12; a *= 2", 24 },
+		{ "let a = 12; a *= 2; a", 24 },
+		{ "let a = 12; a /= 2", 6 },
+		{ "let a = 12; a /= 2; a", 6 },
+		{ "let a = 12; a %= 5", 2 },
+		{ "let a = 12; a %= 5; a", 2 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -375,7 +383,11 @@ TEST(EvaluatorTest, evaluateIndex)
 		{ "[2, 4, 6][1]", 4 },
 		{ "[2, 4, 6][2]", 6 },
 		{ "let array = [2, 4, 6]; array[2]", 6 },
-		{ "let array = [2, 4, 6]; let sum = array[1] + array[2]; sum", 10 }
+		{ "let array = [2, 4, 6]; let sum = array[1] + array[2]; sum", 10 },
+		{ "let a = [1, 2, 3]; a[1] = 11", 11 },
+		{ "let a = [1, 2, 3]; a[1] = 11; a[1]", 11 },
+		{ "let a = [2, 4, 6]; a[2] += 12", 18 },
+		{ "let a = [2, 4, 6]; a[2] += 12; a[2]", 18 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -396,6 +408,26 @@ TEST(EvaluatorTest, evaluateWhile)
 	ASSERT_EQ(evaluated->typeName(), "integer");
 
 	testInteger(evaluated, 5050);
+}
+
+TEST(EvaluatorTest, evaluateInDecrement)
+{
+	struct Expected
+	{
+		string input;
+		int64_t value;
+	} tests[] = {
+		{ "let a = 12; ++a", 13 },
+		{ "let a = 3; --a", 2 },
+		{ "let a = 19; ++a; a", 20 },
+		{ "let a = 6; --a; a", 5 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testInteger(initEvaluator(input), value);
+	}
 }
 
 

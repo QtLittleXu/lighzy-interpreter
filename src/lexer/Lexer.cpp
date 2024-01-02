@@ -99,20 +99,79 @@ shared_ptr<Token> Lexer::parseToken()
 		return token;
 
 	case '+':
-		token = make_shared<Token>("+", Token::Plus);
-		break;
+		if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '=')
+		{
+			token = make_shared<Token>("+=", Token::AddAssign);
+			_pos += 2;
+		}
+		else if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '+')
+		{
+			token = make_shared<Token>("++", Token::Increment);
+			_pos += 2;
+		}
+		else
+		{
+			token = make_shared<Token>("+", Token::Plus);
+			_pos++;
+		}
+		return token;
 
 	case '-':
-		token = make_shared<Token>("-", Token::Minus);
-		break;
+		if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '=')
+		{
+			token = make_shared<Token>("-=", Token::SubAssign);
+			_pos += 2;
+		}
+		else if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '-')
+		{
+			token = make_shared<Token>("--", Token::Decrement);
+			_pos += 2;
+		}
+		else
+		{
+			token = make_shared<Token>("-", Token::Minus);
+			_pos++;
+		}
+		return token;
 
 	case '*':
-		token = make_shared<Token>("*", Token::Asterisk);
-		break;
+		if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '=')
+		{
+			token = make_shared<Token>("*=", Token::MulAssign);
+			_pos += 2;
+		}
+		else
+		{
+			token = make_shared<Token>("*", Token::Asterisk);
+			_pos++;
+		}
+		return token;
 
 	case '/':
-		token = make_shared<Token>("/", Token::Slash);
-		break;
+		if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '=')
+		{
+			token = make_shared<Token>("/=", Token::DivAssign);
+			_pos += 2;
+		}
+		else
+		{
+			token = make_shared<Token>("/", Token::Slash);
+			_pos++;
+		}
+		return token;
+
+	case '%':
+		if (_pos + 1 < _input.size() && _input.at(_pos + 1) == '=')
+		{
+			token = make_shared<Token>("%=", Token::ModulusAssign);
+			_pos += 2;
+		}
+		else
+		{
+			token = make_shared<Token>("%", Token::Modulus);
+			_pos++;
+		}
+		return token;
 
 	case '"':
 		token = make_shared<Token>(read_string(), Token::String);

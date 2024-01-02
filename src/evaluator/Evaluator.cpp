@@ -22,6 +22,7 @@
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
 #include "ast/WhileStat.hpp"
+#include "ast/InDecrementExpr.hpp"
 
 namespace li
 {
@@ -78,7 +79,7 @@ shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& val
 		return bool_false;
 	}
 	
-	return prefix_operand_type("!", value->typeName());
+	return operand_type_error("prefix", "!", value->typeName());
 }
 
 shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& value)
@@ -99,15 +100,15 @@ shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& va
 	}
 
 	default:
-		return prefix_operand_type("-", value->typeName());
+		return operand_type_error("prefix", "-", value->typeName());
 
 	}
 }
 
-shared_ptr<Object> Evaluator::prefix_operand_type(const string& operatorName, const string& right)
+shared_ptr<Object> Evaluator::operand_type_error(const string& type, const string& operatorName, const string& right)
 {
 	stringstream buffer;
-	buffer << "error - prefix operand type: " << operatorName << right;
+	buffer << "error - " << type << " operand type: " << operatorName << right;
 	return make_shared<Error>(buffer.str());
 }
 
@@ -247,6 +248,13 @@ shared_ptr<Object> Evaluator::evaluate_infix_number(const shared_ptr<Object>& le
 		}
 
 		return make_shared<Integer>(leftValue / rightValue);
+	}
+	if (operatorName == "%")
+	{
+		if (left->type == Object::Type::Integer || right->type == Object::Type::Integer)
+		{
+			return make_shared<Integer>(static_cast<int64_t>(leftValue) % static_cast<int64_t>(rightValue));
+		}
 	}
 	if (operatorName == "==")
 	{
@@ -468,7 +476,94 @@ shared_ptr<Object> Evaluator::evaluate_index_array(const shared_ptr<Array>& arra
 	return array->elements.at(index->value);
 }
 
-shared_ptr<Object> Evaluator::evaluate_assign_index(const shared_ptr<IndexExpr>& expr, const shared_ptr<Object>& value, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const string& operatorName, const shared_ptr<Environment>& env)
+{
+	auto value = *env->get(id);
+	if (operatorName == "++")
+	{
+		switch (value->type)
+		{
+
+		case Object::Type::Integer:
+		{
+			auto cast = dynamic_pointer_cast<Integer>(value);
+			cast->value++;
+			return cast;
+		}
+
+		default:
+			return operand_type_error("increment or decrement", operatorName, value->typeName());
+		}
+	}
+
+	if (operatorName == "--")
+	{
+		switch (value->type)
+		{
+
+		case Object::Type::Integer:
+		{
+			auto cast = dynamic_pointer_cast<Integer>(value);
+			cast->value--;
+			return cast;
+		}
+
+		default:
+			return operand_type_error("increment or decrement", operatorName, value->typeName());
+		}
+	}
+
+	return unknown_prefix(operatorName, value->typeName());
+}
+
+shared_ptr<Object> Evaluator::evaluate_assign(const shared_ptr<AssignExpr>& expr, const shared_ptr<Object>& value, const shared_ptr<Environment>& env)
+{
+	switch (expr->id->type)
+	{
+	
+	case Node::Type::Index:
+		return evaluate_assign_index(dynamic_pointer_cast<IndexExpr>(expr->id), value, expr->operatorName, env);
+
+	case Node::Type::Identifier:
+	{
+		string name = dynamic_pointer_cast<IdentifierExpr>(expr->id)->value;
+		auto& id = *env->get(name);
+
+		if (expr->operatorName == "=")
+		{
+			return id = value;
+		}
+		if (expr->operatorName == "+=")
+		{
+			return id = evaluate_infix(id, "+", value);
+		}
+		if (expr->operatorName == "-=")
+		{
+			return id = evaluate_infix(id, "-", value);
+		}
+		if (expr->operatorName == "*=")
+		{
+			return id = evaluate_infix(id, "*", value);
+		}
+		if (expr->operatorName == "/=")
+		{
+			return id = evaluate_infix(id, "/", value);
+		}
+		if (expr->operatorName == "%=")
+		{
+			return id = evaluate_infix(id, "%", value);
+		}
+
+		return operand_type_error("assign", expr->operatorName, value->typeName());
+	}
+
+	default:
+		return null;
+
+	}
+}
+
+shared_ptr<Object> Evaluator::evaluate_assign_index(const shared_ptr<IndexExpr>& expr, const shared_ptr<Object>& value, const string& operatorName, const shared_ptr<Environment>& env)
 {
 	auto array = dynamic_pointer_cast<Array>(*env->get(expr->left->literal()));
 	auto left = evaluate(expr->index, env);
@@ -479,8 +574,34 @@ shared_ptr<Object> Evaluator::evaluate_assign_index(const shared_ptr<IndexExpr>&
 	}
 
 	auto index = dynamic_pointer_cast<Integer>(left)->value;
-	array->elements.at(index) = value;
-	return value;
+	auto& id = array->elements.at(index);
+
+	if (operatorName == "=")
+	{
+		return id = value;
+	}
+	if (operatorName == "+=")
+	{
+		return id = evaluate_infix(id, "+", value);
+	}
+	if (operatorName == "-=")
+	{
+		return id = evaluate_infix(id, "-", value);
+	}
+	if (operatorName == "*=")
+	{
+		return id = evaluate_infix(id, "*", value);
+	}
+	if (operatorName == "/=")
+	{
+		return id = evaluate_infix(id, "/", value);
+	}
+	if (operatorName == "%=")
+	{
+		return id = evaluate_infix(id, "%", value);
+	}
+
+	return operand_type_error("assign", operatorName, value->typeName());
 }
 
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
@@ -634,25 +755,7 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 		}
 
 		// Where bugs occur: segment fault when the id of the AssignExor is IndexExpr
-		switch (cast->id->type)
-		{
-		
-		case Node::Type::Index:
-			return evaluate_assign_index(dynamic_pointer_cast<IndexExpr>(cast->id), value, env);
-
-		case Node::Type::Identifier:
-		{
-			string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
-			env->set(name, value);
-			break;
-		}
-
-		default:
-			return null;
-
-		}
-		
-		return value;
+		return evaluate_assign(cast, value, env);
 	}
 
 	case Node::Type::Array:
@@ -693,6 +796,19 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 			evaluate(cast->body, make_shared<Environment>(env));
 		}
 		return null;
+	}
+
+	case Node::Type::InDecrement:
+	{
+		auto cast = dynamic_pointer_cast<InDecrementExpr>(node);
+		auto id = evaluate(cast->id, env);
+		if (id->type == Object::Type::Error)
+		{
+			return id;
+		}
+
+		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
+		return evaluate_in_decrement(name, cast->operatorName, env);
 	}
 
 	default:

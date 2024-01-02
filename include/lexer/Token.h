@@ -25,7 +25,9 @@ public:
 
 		// operators
 		Assign, Equal, NotEqual, Greater, GreaterEqual, Less, LessEqual, LogicalNegation,
-		Plus, Minus, Asterisk, Slash,
+		Plus, Minus, Asterisk, Slash, Modulus, 
+		AddAssign, SubAssign, MulAssign, DivAssign, ModulusAssign,
+		Increment, Decrement,
 
 		// keywords
 		Let, Fun, True, False, If, Else, Return, While
