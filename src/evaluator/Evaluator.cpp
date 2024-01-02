@@ -249,6 +249,13 @@ shared_ptr<Object> Evaluator::evaluate_infix_number(const shared_ptr<Object>& le
 
 		return make_shared<Integer>(leftValue / rightValue);
 	}
+	if (operatorName == "%")
+	{
+		if (left->type == Object::Type::Integer || right->type == Object::Type::Integer)
+		{
+			return make_shared<Integer>(static_cast<int64_t>(leftValue) % static_cast<int64_t>(rightValue));
+		}
+	}
 	if (operatorName == "==")
 	{
 		return bool_to_object(leftValue == rightValue);
@@ -509,6 +516,38 @@ shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const stri
 	return unknown_prefix(operatorName, value->typeName());
 }
 
+shared_ptr<Object> Evaluator::evaluate_assign(const string& name, const string& operatorName, const shared_ptr<Object>& value, const shared_ptr<Environment>& env)
+{
+	auto& id = *env->get(name);
+
+	if (operatorName == "=")
+	{
+		return id = value;
+	}
+	if (operatorName == "+=")
+	{
+		return id = evaluate_infix(id, "+", value);
+	}
+	if (operatorName == "-=")
+	{
+		return id = evaluate_infix(id, "-", value);
+	}
+	if (operatorName == "*=")
+	{
+		return id = evaluate_infix(id, "*", value);
+	}
+	if (operatorName == "/=")
+	{
+		return id = evaluate_infix(id, "/", value);
+	}
+	if (operatorName == "%=")
+	{
+		return id = evaluate_infix(id, "%", value);
+	}
+
+	return operand_type_error("assign", operatorName, value->typeName());
+}
+
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
 {
 	switch (node->type)
@@ -660,8 +699,7 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 		}
 
 		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
-		env->set(name, value);
-		return value;
+		return evaluate_assign(name, cast->operatorName, value, env);
 	}
 
 	case Node::Type::Array:

@@ -94,7 +94,8 @@ TEST(EvaluatorTest, evaluateInteger)
 		{ "1 + 1", 2 },
 		{ "2 - 1", 1 },
 		{ "12 * 12", 144 },
-		{ "33 / 3", 11 }
+		{ "33 / 3", 11 },
+		{ "12 % 5", 2 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -319,7 +320,17 @@ TEST(EvaluatorTest, evaluateAssign)
 		{ "let temp = 0; temp = 2; temp", 2 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4;", 4 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 },
-		{ "let dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 }
+		{ "let dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 },
+		{ "let a = 12; a += 2", 14 },
+		{ "let a = 12; a += 2; a", 14 },
+		{ "let a = 12; a -= 2", 10 },
+		{ "let a = 12; a -= 2; a", 10 },
+		{ "let a = 12; a *= 2", 24 },
+		{ "let a = 12; a *= 2; a", 24 },
+		{ "let a = 12; a /= 2", 6 },
+		{ "let a = 12; a /= 2; a", 6 },
+		{ "let a = 12; a %= 5", 2 },
+		{ "let a = 12; a %= 5; a", 2 },
 	};
 
 	for (const auto& [input, value] : tests)

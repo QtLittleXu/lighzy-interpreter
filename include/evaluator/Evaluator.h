@@ -56,6 +56,7 @@ private:
 	shared_ptr<Object> evaluate_index(const shared_ptr<Object>& left, const shared_ptr<Object>& index);
 	shared_ptr<Object> evaluate_index_array(const shared_ptr<Array>& array, const shared_ptr<Integer>& index);
 	shared_ptr<Object> evaluate_in_decrement(const string& id, const string& operatorName, const shared_ptr<Environment>& env);
+	shared_ptr<Object> evaluate_assign(const string& name, const string& operatorName, const shared_ptr<Object>& value, const shared_ptr<Environment>& env);
 
 public:
 	static const shared_ptr<Bool> bool_true;
