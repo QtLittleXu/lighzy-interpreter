@@ -12,6 +12,7 @@
 #include "ast/FloatExpr.hpp"
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
+#include "ast/InDecrementExpr.hpp"
 
 namespace li
 {
@@ -47,10 +48,10 @@ string Parser::pos_string() const
 	return stream.str();
 }
 
-void Parser::no_prefix_parse_fun_error(Token::Type type)
+void Parser::unknown_prefix(Token::Type type)
 {
 	stringstream stream;
-	stream << pos_string() << "error: no prefix parse function for " << Token::typeName(type);
+	stream << pos_string() << "error: unknown prefix: " << Token::typeName(type);
 	_outputs.push_back(stream.str());
 }
 
@@ -74,10 +75,17 @@ void Parser::parse_number_error(const string& msg)
 	_outputs.push_back(buffer.str());
 }
 
-void Parser::assign_operand_type_error(const string& id)
+void Parser::operand_type_error(const string& type, const string& id)
 {
 	stringstream buffer;
-	buffer << "error - assign operand type error: " << id;
+	buffer << pos_string() << "error: " << type << " operand type error: " << id;
+	_outputs.push_back(buffer.str());
+}
+
+void Parser::parse_expr_error(const string& msg)
+{
+	stringstream buffer;
+	buffer << pos_string() << "error: " << msg;
 	_outputs.push_back(buffer.str());
 }
 
@@ -148,7 +156,7 @@ shared_ptr<Expr> Parser::parse_expr(PrecedenceType precedence)
     auto prefixFun = _prefixParseFuns.find(_current->type);
 	if (prefixFun == _prefixParseFuns.end())
 	{
-		no_prefix_parse_fun_error(_current->type);
+		unknown_prefix(_current->type);
 		parse_token();
 		return nullptr;
 	}
@@ -400,7 +408,7 @@ shared_ptr<Expr> Parser::parse_assign(const shared_ptr<Expr>& id)
 	auto expr = make_shared<AssignExpr>(_current);
 	if (id->type != Node::Type::Identifier)
 	{
-		assign_operand_type_error(id->toString());
+		operand_type_error("assign", id->toString());
 		parse_token();
 		return nullptr;
 	}
@@ -434,6 +442,30 @@ shared_ptr<Expr> Parser::parse_array()
 	expr->elements = parse_exprs(Token::RBracket);
 	if (expect_token_type(Token::RBracket)) return nullptr;
 	parse_token();
+	return expr;
+}
+
+shared_ptr<Expr> Parser::parse_in_decrement()
+{
+	auto expr = make_shared<InDecrementExpr>(_current);
+	expr->operatorName = _current->literal;
+	parse_token();
+
+	auto id = parse_expr(Prefix);
+
+	if (id == nullptr)
+	{
+		parse_expr_error("expected an identifier");
+		return nullptr;
+	}
+	if (id->type != Node::Type::Identifier)
+	{
+		operand_type_error("increment or decrement", id->toString());
+		parse_token();
+		return nullptr;
+	}
+
+	expr->id = id;
 	return expr;
 }
 

@@ -38,10 +38,11 @@ private:
 	void parse_token();
 	PrecedenceType get_precedence(Token::Type type);
 	string pos_string() const;
-	void no_prefix_parse_fun_error(Token::Type type);
+	void unknown_prefix(Token::Type type);
 	bool expect_token_type(Token::Type type);
 	void parse_number_error(const string& msg);
-	void assign_operand_type_error(const string& id);
+	void parse_expr_error(const string& msg);
+	void operand_type_error(const string& type, const string& id);
 
 private:
 	// functions of parsing
@@ -65,6 +66,7 @@ private:
 	shared_ptr<Expr> parse_function();
 	shared_ptr<Expr> parse_string();
 	shared_ptr<Expr> parse_array();
+	shared_ptr<Expr> parse_in_decrement();
 
 	shared_ptr<Expr> parse_infix(const shared_ptr<Expr>& left);
 	shared_ptr<Expr> parse_call(const shared_ptr<Expr>& fun);
@@ -89,7 +91,9 @@ private:
 		{ Token::If,				bind(&Parser::parse_if, this) },
 		{ Token::String,			bind(&Parser::parse_string, this) },
 		{ Token::Fun,				bind(&Parser::parse_function, this) },
-		{ Token::LBracket,			bind(&Parser::parse_array, this) }
+		{ Token::LBracket,			bind(&Parser::parse_array, this) },
+		{ Token::Increment,			bind(&Parser::parse_in_decrement, this) }, 
+		{ Token::Decrement,			bind(&Parser::parse_in_decrement, this) } 
 	};
 
 	const map<Token::Type, infix_parse_fun> _infixParseFuns = {

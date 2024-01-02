@@ -14,6 +14,7 @@
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
 #include "ast/WhileStat.hpp"
+#include "ast/InDecrementExpr.hpp"
 
 namespace li::test
 {
@@ -77,7 +78,7 @@ void initProgram(shared_ptr<Program>& program, const string& input, size_t state
 	ASSERT_EQ(program->statements.size(), statementSize);
 }
 
-void testLetStaement(const shared_ptr<Stat>& statement, const string& name, const string& value)
+void testLetStatement(const shared_ptr<Stat>& statement, const string& name, const string& value)
 {
 	auto temp = dynamic_pointer_cast<LetStat>(statement);
 	ASSERT_TRUE(temp);
@@ -87,7 +88,7 @@ void testLetStaement(const shared_ptr<Stat>& statement, const string& name, cons
 	EXPECT_EQ(temp->value->toString(), value);
 }
 
-void testReturnStaement(const shared_ptr<Stat>& statement, const string& value)
+void testReturnStatement(const shared_ptr<Stat>& statement, const string& value)
 {
 	auto temp = dynamic_pointer_cast<ReturnStat>(statement);
 	ASSERT_TRUE(temp);
@@ -198,6 +199,15 @@ void testAssignExpr(const shared_ptr<Expr>& expr, const string& id, const string
 	EXPECT_EQ(cast->value->toString(), value);
 }
 
+void testInDecrementExpr(const shared_ptr<Expr>& expr, const string& id, const string& operatorName)
+{
+	ASSERT_EQ(expr->type, Node::Type::InDecrement);
+	auto cast = dynamic_pointer_cast<InDecrementExpr>(expr);
+
+	EXPECT_EQ(cast->id->toString(), id);
+	EXPECT_EQ(cast->operatorName, operatorName);
+}
+
 TEST(ParserTest, operatorPrecedence)
 {
 	struct Expected
@@ -251,7 +261,7 @@ TEST(ParserTest, LetStat)
 		auto statement = dynamic_pointer_cast<LetStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
 
-		ASSERT_NO_FATAL_FAILURE(testLetStaement(statement, expectedName, expectedValue));
+		ASSERT_NO_FATAL_FAILURE(testLetStatement(statement, expectedName, expectedValue));
 	}
 }
 
@@ -273,7 +283,7 @@ TEST(ParserTest, ReturnStat)
 		shared_ptr<Program> program;
 		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
 
-		testReturnStaement(program->statements.at(0), expectedValue);
+		testReturnStatement(program->statements.at(0), expectedValue);
 	}
 }
 
@@ -561,6 +571,32 @@ TEST(ParserTest, WhileStat)
 	ASSERT_NO_FATAL_FAILURE(testInfixExpr(statement->condition, "a", "<", "2"));
 	auto expr = dynamic_pointer_cast<ExpressionStat>(statement->body->statements.at(0));
 	ASSERT_NO_FATAL_FAILURE(testInfixExpr(expr->expression, "a", "+", "1"));
+}
+
+TEST(ParserTest, InDecrementExpr)
+{
+	struct Expected
+	{
+		string input;
+		string id;
+		string operatorName;
+	} tests[] = {
+		{ "++test", "test", "++" },
+		{ "--num", "num", "--" }
+	};
+
+	for (const auto& [input, id, value] : tests)
+	{
+		SCOPED_TRACE(input);
+
+		shared_ptr<Program> program;
+		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+
+		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
+		ASSERT_TRUE(statement);
+
+		ASSERT_NO_FATAL_FAILURE(testInDecrementExpr(statement->expression, id, value));
+	}
 }
 
 
