@@ -91,7 +91,6 @@ TEST(EvaluatorTest, evaluateInteger)
 		{ "11", 11 },
 		{ "114514", 114514 },
 		{ "-1", -1 },
-		{ "--1", 1 },
 		{ "1 + 1", 2 },
 		{ "2 - 1", 1 },
 		{ "12 * 12", 144 },
@@ -387,13 +386,33 @@ TEST(EvaluatorTest, evaluateIndex)
 	testNull(initEvaluator("[2, 4, 6][-1]"));
 }
 
-TEST(EvalautorTest, evaluateWhile)
+TEST(EvaluatorTest, evaluateWhile)
 {
 	string input = "let sum = 0; let index = 1; while (index <= 100) { sum = sum + index; index = index + 1 }; sum";
 	auto evaluated = initEvaluator(input);
 	ASSERT_EQ(evaluated->typeName(), "integer");
 
 	testInteger(evaluated, 5050);
+}
+
+TEST(EvaluatorTest, evaluateInDecrement)
+{
+	struct Expected
+	{
+		string input;
+		int64_t value;
+	} tests[] = {
+		{ "let a = 12; ++a", 13 },
+		{ "let a = 3; --a", 2 },
+		{ "let a = 19; ++a; a", 20 },
+		{ "let a = 6; --a; a", 5 }
+	};
+
+	for (const auto& [input, value] : tests)
+	{
+		SCOPED_TRACE(input);
+		testInteger(initEvaluator(input), value);
+	}
 }
 
 

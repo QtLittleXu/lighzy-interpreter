@@ -22,6 +22,7 @@
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
 #include "ast/WhileStat.hpp"
+#include "ast/InDecrementExpr.hpp"
 
 namespace li
 {
@@ -78,7 +79,7 @@ shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& val
 		return bool_false;
 	}
 	
-	return prefix_operand_type("!", value->typeName());
+	return operand_type_error("prefix", "!", value->typeName());
 }
 
 shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& value)
@@ -99,15 +100,15 @@ shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& va
 	}
 
 	default:
-		return prefix_operand_type("-", value->typeName());
+		return operand_type_error("prefix", "-", value->typeName());
 
 	}
 }
 
-shared_ptr<Object> Evaluator::prefix_operand_type(const string& operatorName, const string& right)
+shared_ptr<Object> Evaluator::operand_type_error(const string& type, const string& operatorName, const string& right)
 {
 	stringstream buffer;
-	buffer << "error - prefix operand type: " << operatorName << right;
+	buffer << "error - " << type << " operand type: " << operatorName << right;
 	return make_shared<Error>(buffer.str());
 }
 
@@ -468,6 +469,46 @@ shared_ptr<Object> Evaluator::evaluate_index_array(const shared_ptr<Array>& arra
 	return array->elements.at(index->value);
 }
 
+shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const string& operatorName, const shared_ptr<Environment>& env)
+{
+	auto value = *env->get(id);
+	if (operatorName == "++")
+	{
+		switch (value->type)
+		{
+
+		case Object::Type::Integer:
+		{
+			auto cast = dynamic_pointer_cast<Integer>(value);
+			cast->value++;
+			return cast;
+		}
+
+		default:
+			return operand_type_error("increment or decrement", operatorName, value->typeName());
+		}
+	}
+
+	if (operatorName == "--")
+	{
+		switch (value->type)
+		{
+
+		case Object::Type::Integer:
+		{
+			auto cast = dynamic_pointer_cast<Integer>(value);
+			cast->value--;
+			return cast;
+		}
+
+		default:
+			return operand_type_error("increment or decrement", operatorName, value->typeName());
+		}
+	}
+
+	return unknown_prefix(operatorName, value->typeName());
+}
+
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
 {
 	switch (node->type)
@@ -661,6 +702,19 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 			evaluate(cast->body, make_shared<Environment>(env));
 		}
 		return null;
+	}
+
+	case Node::Type::InDecrement:
+	{
+		auto cast = dynamic_pointer_cast<InDecrementExpr>(node);
+		auto id = evaluate(cast->id, env);
+		if (id->type == Object::Type::Error)
+		{
+			return id;
+		}
+
+		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
+		return evaluate_in_decrement(name, cast->operatorName, env);
 	}
 
 	default:
