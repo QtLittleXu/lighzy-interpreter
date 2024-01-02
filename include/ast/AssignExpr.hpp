@@ -21,6 +21,7 @@ public:
 
 public:
 	shared_ptr<Expr> id;
+	string operatorName;
 	shared_ptr<Expr> value;
 };
 

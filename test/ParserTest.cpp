@@ -190,12 +190,13 @@ void testStringExpr(const shared_ptr<Expr>& expr, const string& value)
 	EXPECT_EQ(cast->value, value);
 }
 
-void testAssignExpr(const shared_ptr<Expr>& expr, const string& id, const string& value)
+void testAssignExpr(const shared_ptr<Expr>& expr, const string& id, const string& operatorName, const string& value)
 {
 	ASSERT_EQ(expr->type, Node::Type::Assign);
 	auto cast = dynamic_pointer_cast<AssignExpr>(expr);
 
 	EXPECT_EQ(cast->id->toString(), id);
+	EXPECT_EQ(cast->operatorName, operatorName);
 	EXPECT_EQ(cast->value->toString(), value);
 }
 
@@ -360,6 +361,7 @@ TEST(ParserTest, InfixExpr)
 		{ "1 - 2", "1", "-", "2" },
 		{ "1 * 2", "1", "*", "2" },
 		{ "1 / 2", "1", "/", "2" },
+		{ "12 % 5", "12", "%", "5" },
 		{ "1 == 2", "1", "==", "2" },
 		{ "1 != 2", "1", "!=", "2" },
 		{ "1 >= 2", "1", ">=", "2" },
@@ -485,14 +487,20 @@ TEST(ParserTest, AssignExpr)
 	{
 		string input;
 		string id;
+		string operatorName;
 		string value;
 	} tests[] = {
-		{ "test = 2", "test", "2" },
-		{ "num = 12 - 2 / 3", "num", "(12 - (2 / 3))" },
-		{ "test = num = 2", "test", "num = 2" }
+		{ "test = 2", "test", "=", "2" },
+		{ "num = 12 - 2 / 3", "num", "=", "(12 - (2 / 3))" },
+		{ "test = num = 2", "test", "=", "num = 2" },
+		{ "a += 2", "a", "+=", "2" },
+		{ "a -= 2", "a", "-=", "2" },
+		{ "a *= 2", "a", "*=", "2" },
+		{ "a /= 2", "a", "/=", "2" },
+		{ "a %= 2", "a", "%=", "2" }
 	};
 
-	for (const auto& [input, id, value] : tests)
+	for (const auto& [input, id, operatorName, value] : tests)
 	{
 		SCOPED_TRACE(input);
 
@@ -502,7 +510,7 @@ TEST(ParserTest, AssignExpr)
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
 
-		ASSERT_NO_FATAL_FAILURE(testAssignExpr(statement->expression, id, value));
+		ASSERT_NO_FATAL_FAILURE(testAssignExpr(statement->expression, id, operatorName, value));
 	}
 }
 

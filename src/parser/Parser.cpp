@@ -406,14 +406,8 @@ shared_ptr<Expr> Parser::parse_call(const shared_ptr<Expr>& fun)
 shared_ptr<Expr> Parser::parse_assign(const shared_ptr<Expr>& id)
 {
 	auto expr = make_shared<AssignExpr>(_current);
-	if (id->type != Node::Type::Identifier)
-	{
-		operand_type_error("assign", id->toString());
-		parse_token();
-		return nullptr;
-	}
-
 	expr->id = id;
+	expr->operatorName = _current->literal;
 	parse_token();
 	expr->value = parse_expr(Lowest);
 	return expr;

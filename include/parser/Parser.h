@@ -101,6 +101,7 @@ private:
 		{ Token::Minus,			bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::Asterisk,		bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::Slash,			bind(&Parser::parse_infix, this, placeholders::_1) },
+		{ Token::Modulus,		bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::Equal,			bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::NotEqual,		bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::Greater,		bind(&Parser::parse_infix, this, placeholders::_1) },
@@ -109,6 +110,11 @@ private:
 		{ Token::LessEqual,		bind(&Parser::parse_infix, this, placeholders::_1) },
 		{ Token::LParen,		bind(&Parser::parse_call, this, placeholders::_1) },
 		{ Token::Assign,		bind(&Parser::parse_assign, this, placeholders::_1) },
+		{ Token::AddAssign,		bind(&Parser::parse_assign, this, placeholders::_1) },
+		{ Token::SubAssign,		bind(&Parser::parse_assign, this, placeholders::_1) },
+		{ Token::MulAssign,		bind(&Parser::parse_assign, this, placeholders::_1) },
+		{ Token::DivAssign,		bind(&Parser::parse_assign, this, placeholders::_1) },
+		{ Token::ModulusAssign,	bind(&Parser::parse_assign, this, placeholders::_1) },
 		{ Token::LBracket,		bind(&Parser::parse_index, this, placeholders::_1) }
 	};
 
@@ -119,6 +125,7 @@ private:
 		{ Token::Minus,				Sum },
 		{ Token::Asterisk,			Product },
 		{ Token::Slash,				Product },
+		{ Token::Modulus,			Product },
 		{ Token::LogicalNegation,	Prefix },
 		{ Token::Greater,			LessGreater },
 		{ Token::GreaterEqual,		LessGreater },
@@ -126,6 +133,11 @@ private:
 		{ Token::LessEqual,			LessGreater },
 		{ Token::LParen,			Call },
 		{ Token::Assign,			Assign },
+		{ Token::AddAssign,			Assign },
+		{ Token::SubAssign,			Assign },
+		{ Token::MulAssign,			Assign },
+		{ Token::DivAssign,			Assign },
+		{ Token::ModulusAssign,		Assign },
 		{ Token::LBracket,			Index }
 	};
 };
