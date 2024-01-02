@@ -468,6 +468,21 @@ shared_ptr<Object> Evaluator::evaluate_index_array(const shared_ptr<Array>& arra
 	return array->elements.at(index->value);
 }
 
+shared_ptr<Object> Evaluator::evaluate_assign_index(const shared_ptr<IndexExpr>& expr, const shared_ptr<Object>& value, const shared_ptr<Environment>& env)
+{
+	auto array = dynamic_pointer_cast<Array>(*env->get(expr->left->literal()));
+	auto left = evaluate(expr->index, env);
+
+	if (left->type == Object::Type::Error)
+	{
+		return left;
+	}
+
+	auto index = dynamic_pointer_cast<Integer>(left)->value;
+	array->elements.at(index) = value;
+	return value;
+}
+
 shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
 {
 	switch (node->type)
@@ -618,8 +633,25 @@ shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const share
 			return value;
 		}
 
-		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
-		env->set(name, value);
+		// Where bugs occur: segment fault when the id of the AssignExor is IndexExpr
+		switch (cast->id->type)
+		{
+		
+		case Node::Type::Index:
+			return evaluate_assign_index(dynamic_pointer_cast<IndexExpr>(cast->id), value, env);
+
+		case Node::Type::Identifier:
+		{
+			string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
+			env->set(name, value);
+			break;
+		}
+
+		default:
+			return null;
+
+		}
+		
 		return value;
 	}
 

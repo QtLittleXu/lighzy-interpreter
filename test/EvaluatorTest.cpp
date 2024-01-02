@@ -320,7 +320,9 @@ TEST(EvaluatorTest, evaluateAssign)
 		{ "let temp = 0; temp = 2; temp", 2 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4;", 4 },
 		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 },
-		{ "let dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 }
+		{ "let dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 },
+		{ "let a = [1, 2, 3]; a[1] = 11", 11 },
+		{ "let a = [1, 2, 3]; a[1] = 11; a[1]", 11 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -387,7 +389,7 @@ TEST(EvaluatorTest, evaluateIndex)
 	testNull(initEvaluator("[2, 4, 6][-1]"));
 }
 
-TEST(EvalautorTest, evaluateWhile)
+TEST(EvaluatorTest, evaluateWhile)
 {
 	string input = "let sum = 0; let index = 1; while (index <= 100) { sum = sum + index; index = index + 1 }; sum";
 	auto evaluated = initEvaluator(input);
