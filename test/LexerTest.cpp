@@ -7,7 +7,7 @@ namespace li::test
 
 TEST(LexerTest, parseToken)
 {
-    Lexer lexer("@identifierString;,(){}12345[]\"Hello world!\"977.21= == != > >= < <=!+-*/let fun true false if else return while");
+    Lexer lexer("@identifierString;,(){}12345[]\"Hello world!\"977.21= == != > >= < <=!+-*/% += -= *= /= %=++--let fun true false if else return while");
 
 	struct
 	{
@@ -39,6 +39,14 @@ TEST(LexerTest, parseToken)
         { Token::Minus,				"-"},
         { Token::Asterisk,			"*" },
         { Token::Slash,				"/" },
+		{ Token::Modulus,			"%" },
+		{ Token::AddAssign,			"+=" },
+		{ Token::SubAssign,			"-=" },
+		{ Token::MulAssign,			"*=" },
+		{ Token::DivAssign,			"/=" },
+		{ Token::ModulusAssign,		"%=" },
+		{ Token::Increment,			"++" },
+		{ Token::Decrement,			"--" },
 		{ Token::Let,				"let" },
 		{ Token::Fun,				"fun" },
 		{ Token::True,				"true" },
