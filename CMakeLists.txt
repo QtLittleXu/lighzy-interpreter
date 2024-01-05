@@ -44,5 +44,6 @@ target_link_libraries(${LI_PROGRAM} PRIVATE
 
 # test
 if (BUILD_TEST)
-	add_subdirectory(test)
+    enable_testing()
+    add_subdirectory(test)
 endif()
