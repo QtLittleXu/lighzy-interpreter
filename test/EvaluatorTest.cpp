@@ -1,85 +1,17 @@
 #include <gtest/gtest.h>
 #include <memory>
-#include "parser/Parser.h"
-#include "evaluator/Evaluator.h"
 #include "object/Integer.hpp"
-#include "object/Bool.hpp"
 #include "object/Error.hpp"
 #include "object/Function.hpp"
 #include "object/String.hpp"
 #include "object/Float.hpp"
 #include "object/Array.hpp"
+#include "initialization.h"
+#include "evaluator/Evaluator.h"
 
 namespace li::test
 {
 
-
-void checkParserOutputs(const shared_ptr<Parser>& parser);
-
-shared_ptr<Object> initEvaluator(const string& input)
-{
-	auto lexer = make_shared<Lexer>(input);
-	auto parser = make_shared<Parser>(lexer);
-	auto program = parser->parseProgram();
-	checkParserOutputs(parser);
-
-	auto evaluator = make_shared<Evaluator>();
-	auto env = make_shared<Environment>();
-
-	auto obj = evaluator->evaluate(program, env);
-	if (obj->type == Object::Type::Error)
-	{
-		cerr << obj->inspect() << '\n';
-	}
-	return obj;
-}
-
-void testInteger(const shared_ptr<Object>& obj, int64_t value)
-{
-	ASSERT_EQ(obj->typeName(), "integer");
-
-	auto cast = dynamic_pointer_cast<Integer>(obj);
-	EXPECT_EQ(cast->value, value);
-}
-
-void testFloat(const shared_ptr<Object>& obj, double value)
-{
-	ASSERT_EQ(obj->typeName(), "float");
-
-	auto cast = dynamic_pointer_cast<Float>(obj);
-	EXPECT_EQ(cast->value, value);
-}
-
-void testBool(const shared_ptr<Object>& obj, bool value)
-{
-	ASSERT_EQ(obj->typeName(), "bool");
-
-	auto cast = dynamic_pointer_cast<Bool>(obj);
-	EXPECT_EQ(cast->value, value);
-}
-
-void testString(const shared_ptr<Object>& obj, const string& value)
-{
-	ASSERT_EQ(obj->typeName(), "string");
-
-	auto cast = dynamic_pointer_cast<String>(obj);
-	EXPECT_EQ(cast->value, value);
-}
-
-void testNull(const shared_ptr<Object>& obj)
-{
-	ASSERT_EQ(obj->typeName(), "null");
-
-	auto cast = dynamic_pointer_cast<Null>(obj);
-}
-
-void testError(const shared_ptr<Object>& obj, const string& message)
-{
-	ASSERT_EQ(obj->typeName(), "error");
-
-	auto cast = dynamic_pointer_cast<Error>(obj);
-	EXPECT_EQ(cast->message, message);
-}
 
 TEST(EvaluatorTest, evaluateInteger)
 {
@@ -101,7 +33,7 @@ TEST(EvaluatorTest, evaluateInteger)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 
@@ -124,7 +56,7 @@ TEST(EvaluatorTest, evaluateFloat)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testFloat(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Float>(value));
 	}
 }
 
@@ -159,7 +91,7 @@ TEST(EvaluatorTest, evaluateBool)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testBool(initEvaluator(input), value);
+		testEqual(initEvaluator(input), Evaluator::bool_to_object(value));
 	}
 }
 
@@ -179,15 +111,13 @@ TEST(EvaluatorTest, evaluateIf)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		
-		auto obj = initEvaluator(input);
 		if (value == 0)
 		{
-			testNull(obj);
+			testEqual(initEvaluator(input), Evaluator::null);
 		}
 		else
 		{
-			testInteger(obj, value);
+			testEqual(initEvaluator(input), make_shared<Integer>(value));
 		}
 	}
 }
@@ -207,7 +137,7 @@ TEST(EvaluatorTest, evaluateReturn)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 
@@ -234,7 +164,7 @@ TEST(EvaluatorTest, evaluateError)
 	for (const auto& [input, error] : tests)
 	{
 		SCOPED_TRACE(input);
-		testError(initEvaluator(input), error);
+		testEqual(initEvaluator(input), make_shared<Error>(error));
 	}
 }
 
@@ -254,13 +184,14 @@ TEST(EvaluatorTest, evaluateLet)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 
 TEST(EvaluatorTest, evaluateFunction)
 {
 	string input = "fun(x) { x + 2 }";
+
 	auto evaluated = initEvaluator(input);
 
 	ASSERT_EQ(evaluated->typeName(), "function");
@@ -287,7 +218,7 @@ TEST(EvaluatorTest, evaluateCall)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 
@@ -305,7 +236,7 @@ TEST(EvaluatorTest, evaluateString)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testString(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<String>(value));
 	}
 }
 
@@ -336,7 +267,7 @@ TEST(EvaluatorTest, evaluateAssign)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 
@@ -354,22 +285,19 @@ TEST(EvaluatorTest, evaluateBuiltInFun)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 
 TEST(EvaluatorTest, evaluateArray)
 {
 	string input = R"([1, "Hello world!", 12 / 3])";
-	auto evaluated = initEvaluator(input);
+	auto value = make_shared<Array>(Array({
+		make_shared<Integer>(1),
+		make_shared<String>("Hello world!"),
+		make_shared<Integer>(4)}));
 
-	ASSERT_EQ(evaluated->typeName(), "array");
-	auto cast = dynamic_pointer_cast<Array>(evaluated);
-	ASSERT_EQ(cast->elements.size(), 3);
-
-	testInteger(cast->elements.at(0), 1);
-	testString(cast->elements.at(1), "Hello world!");
-	testInteger(cast->elements.at(2), 4);
+	testEqual(initEvaluator(input), value);
 }
 
 TEST(EvaluatorTest, evaluateIndex)
@@ -393,21 +321,18 @@ TEST(EvaluatorTest, evaluateIndex)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 
 	// Out of range will return null
-	testNull(initEvaluator("[2, 4, 6][3]"));
-	testNull(initEvaluator("[2, 4, 6][-1]"));
+	testEqual(initEvaluator("[2, 4, 6][3]"), Evaluator::null);
+	testEqual(initEvaluator("[2, 4, 6][-1]"), Evaluator::null);
 }
 
 TEST(EvaluatorTest, evaluateWhile)
 {
 	string input = "let sum = 0; let index = 1; while (index <= 100) { sum = sum + index; index = index + 1 }; sum";
-	auto evaluated = initEvaluator(input);
-	ASSERT_EQ(evaluated->typeName(), "integer");
-
-	testInteger(evaluated, 5050);
+	testEqual(initEvaluator(input), make_shared<Integer>(5050));
 }
 
 TEST(EvaluatorTest, evaluateInDecrement)
@@ -426,7 +351,7 @@ TEST(EvaluatorTest, evaluateInDecrement)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-		testInteger(initEvaluator(input), value);
+	testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 

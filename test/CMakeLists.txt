@@ -1,7 +1,9 @@
 set(SOURCES
+	initialization.cpp
 	LexerTest.cpp
 	ParserTest.cpp
-	EvaluatorTest.cpp)
+	EvaluatorTest.cpp
+	stdlibTest.cpp)
 
 set(TEST_NAME ${LI_LIBRARY}-test)
 

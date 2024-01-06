@@ -46,10 +46,19 @@ shared_ptr<Object> BuiltinFuns::print(const vector<shared_ptr<Object>>& objs)
 	{
 		return Evaluator::invalid_arguments("expected the type of first argument to be integer, but got empty");
 	}
-
-	for (const auto& obj : objs)
+	if (objs.size() != 2)
 	{
-		cout << obj->inspect() << '\n';
+		return Evaluator::invalid_arguments("expected the number of arguments to be 2, but got " + to_string(objs.size()));
+	}
+	if (objs.at(1)->type != Object::Type::Bool)
+	{
+		return Evaluator::invalid_arguments("expected the type of second argument to be bool, but got " + objs.at(0)->typeName());
+	}
+
+	cout << objs.at(0)->inspect();
+	if (objs.at(1) == Evaluator::bool_true)
+	{
+		cout << '\n';
 	}
 	return Evaluator::null;
 }

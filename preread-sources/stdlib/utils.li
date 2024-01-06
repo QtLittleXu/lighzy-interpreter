@@ -1,0 +1,14 @@
+let print = fun(obj)
+{
+	_builtin_(0, obj, false)
+}
+
+let println = fun(obj)
+{
+    _builtin_(0, obj, true)
+}
+
+let len = fun(obj)
+{
+	_builtin_(1, obj)
+}
