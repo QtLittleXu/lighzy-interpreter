@@ -29,3 +29,10 @@ lighzy-interpreter 是专门用来解释 Lighzy 语言的跨平台解释器，�
 - 布尔
 - 字符串
 - 数组
+
+### 标准库
+
+- `print(obj)`: 打印 `obj` 对象到屏幕上
+- `println(obj)`: 打印 `obj` 对象到屏幕上并换行
+- `len(obj)`:
+  - `obj: string`: 返回 `obj` 字符串的长度
