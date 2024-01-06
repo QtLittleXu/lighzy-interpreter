@@ -1,12 +1,16 @@
 #include <fstream>
+#include <filesystem>
 #include "program/Program.h"
 #include "parser/Parser.h"
 #include "evaluator/Evaluator.h"
+#include "evaluator/BuiltinFuns.h"
 #include "config.h"
 
 namespace li::program
 {
 
+
+const string Program::PREREAD_SOURCES_PATH = "../preread-sources";
 
 Program::Program() : _program(EXECUTABLE_NAME, PROJECT_VERSION), _out(&cout)
 {
@@ -15,7 +19,7 @@ Program::Program() : _program(EXECUTABLE_NAME, PROJECT_VERSION), _out(&cout)
 	_program.add_argument("source")
 		.remaining()
 		.nargs(argparse::nargs_pattern::optional)
-		.help("input sourse");
+		.help("input source");
 
 	_program.add_argument("--repl", "-r")
 		.flag()
@@ -93,7 +97,7 @@ void Program::change_write_file(const string& fileName)
 
 void Program::parse_source(const string& input, const shared_ptr<Environment>& env)
 {
-	auto lexer = make_shared<li::Lexer>(input);
+	auto lexer = make_shared<li::Lexer>(read_preread_sources(PREREAD_SOURCES_PATH) + input);
 	auto parser = make_shared<li::Parser>(lexer);
 	auto program = parser->parseProgram();
 
@@ -133,6 +137,32 @@ string Program::read_file(const string& fileName)
 		output += buffer + '\n';
 	}
 	return output;
+}
+
+string Program::read_preread_sources(const string& folderName)
+{
+	filesystem::path path(folderName);
+    if (!filesystem::exists(path) ||
+		!filesystem::is_directory(path))
+	{
+		stringstream read_error;
+		read_error << "_builtin_(" << BuiltinFuns::Print << R"(, "cannot read preread sources! ", true))";
+		return read_error.str();
+	}
+
+	string sources;
+	for (const auto& entry : filesystem::directory_iterator(path))
+	{
+		if (filesystem::is_directory(entry))
+        {
+            sources += read_preread_sources(entry.path());
+            continue;
+        }
+
+		string fileName = entry.path();
+		sources += read_file(fileName);
+	}
+	return sources;
 }
 
 int Program::repl()
