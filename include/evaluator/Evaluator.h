@@ -37,10 +37,10 @@ public:
 	static shared_ptr<Object> not_function(const string& type);
 	static shared_ptr<Object> invalid_arguments(const string& msg);
 	static shared_ptr<Object> index_operand_type(const string& left, const string& index);
+	static shared_ptr<Bool> bool_to_object(bool value);
 
 private:
 	const shared_ptr<Bool>& evaluate_bool(const shared_ptr<BoolExpr>& node);
-	const shared_ptr<Bool>& bool_to_object(bool value);
 	tuple<shared_ptr<Object>, shared_ptr<Environment>> bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects);
 
 	shared_ptr<Object> evaluate_prefix(const string& operatorName, const shared_ptr<Object>& right);

@@ -15,6 +15,7 @@
 #include "ast/IndexExpr.hpp"
 #include "ast/WhileStat.hpp"
 #include "ast/InDecrementExpr.hpp"
+#include "initialization.h"
 
 namespace li::test
 {
@@ -56,26 +57,6 @@ TEST(ParserTest, toString)
 	program->statements.push_back(returnS);
 
 	EXPECT_EQ(program->toString(), "let testName = -1; return (114514 + 1919810); ");
-}
-
-void checkParserOutputs(const shared_ptr<Parser>& parser)
-{
-	for (const auto& output : parser->outputs())
-	{
-		cerr << output << '\n';
-	}
-
-	EXPECT_TRUE(parser->outputs().empty());
-}
-
-void initProgram(shared_ptr<Program>& program, const string& input, size_t statementSize)
-{
-	auto lexer = make_shared<Lexer>(input);
-	auto parser = make_shared<Parser>(lexer);
-	program = parser->parseProgram();
-
-	ASSERT_NO_FATAL_FAILURE(checkParserOutputs(parser));
-	ASSERT_EQ(program->statements.size(), statementSize);
 }
 
 void testLetStatement(const shared_ptr<Stat>& statement, const string& name, const string& value)
@@ -231,7 +212,7 @@ TEST(ParserTest, operatorPrecedence)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -257,7 +238,7 @@ TEST(ParserTest, LetStat)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<LetStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -282,7 +263,7 @@ TEST(ParserTest, ReturnStat)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		testReturnStatement(program->statements.at(0), expectedValue);
 	}
@@ -291,7 +272,7 @@ TEST(ParserTest, ReturnStat)
 TEST(ParserTest, IdentifierExpr)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, "myabc", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, "myabc", 1));
 
     auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -302,7 +283,7 @@ TEST(ParserTest, IdentifierExpr)
 TEST(ParserTest, IntegerExpr)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, "114514", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, "114514", 1));
 
 	auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -313,7 +294,7 @@ TEST(ParserTest, IntegerExpr)
 TEST(ParserTest, FloatExpr)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, "1919.81", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, "1919.81", 1));
 
 	auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -339,7 +320,7 @@ TEST(ParserTest, PrefixExpr)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -373,7 +354,7 @@ TEST(ParserTest, InfixExpr)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -398,7 +379,7 @@ TEST(ParserTest, BoolExpr)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -410,7 +391,7 @@ TEST(ParserTest, BoolExpr)
 TEST(ParserTest, IfExpr)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, "if (x == y) { x } else { y }", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, "if (x == y) { x } else { y }", 1));
 
     auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -435,7 +416,7 @@ TEST(ParserTest, FunctionExpr)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -461,7 +442,7 @@ TEST(ParserTest, CallExpr)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -473,7 +454,7 @@ TEST(ParserTest, CallExpr)
 TEST(ParserTest, StringExpr)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, "\"Hello world!\"", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, "\"Hello world!\"", 1));
 
     auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -505,7 +486,7 @@ TEST(ParserTest, AssignExpr)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);
@@ -543,7 +524,7 @@ TEST(ParserTest, errorHandling)
 TEST(ParserTest, ArrayExpr)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, R"([1, 1 * 3, "Hello world!"])", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, R"([1, 1 * 3, "Hello world!"])", 1));
 
     auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -557,7 +538,7 @@ TEST(ParserTest, ArrayExpr)
 TEST(ParserTest, IndexExpr)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, "testArray[12]", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, "testArray[12]", 1));
 
     auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -571,7 +552,7 @@ TEST(ParserTest, IndexExpr)
 TEST(ParserTest, WhileStat)
 {
 	shared_ptr<Program> program;
-	ASSERT_NO_FATAL_FAILURE(initProgram(program, "while(a < 2) { a + 1 }", 1));
+	ASSERT_NO_FATAL_FAILURE(initParser(program, "while(a < 2) { a + 1 }", 1));
 
     auto statement = dynamic_pointer_cast<WhileStat>(program->statements.at(0));
 	ASSERT_TRUE(statement);
@@ -598,7 +579,7 @@ TEST(ParserTest, InDecrementExpr)
 		SCOPED_TRACE(input);
 
 		shared_ptr<Program> program;
-		ASSERT_NO_FATAL_FAILURE(initProgram(program, input, 1));
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
 
 		auto statement = dynamic_pointer_cast<ExpressionStat>(program->statements.at(0));
 		ASSERT_TRUE(statement);

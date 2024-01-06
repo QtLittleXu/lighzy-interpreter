@@ -175,7 +175,7 @@ shared_ptr<Object> Evaluator::evaluate_prefix(const string& operatorName, const 
 	return unknown_prefix(operatorName, right->typeName());
 }
 
-const shared_ptr<Bool>& Evaluator::bool_to_object(bool value)
+shared_ptr<Bool> Evaluator::bool_to_object(bool value)
 {
 	return value ? bool_true : bool_false;
 }
