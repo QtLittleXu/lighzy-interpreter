@@ -17,12 +17,15 @@ public:
     {
 		stringstream buffer;
 		buffer << "(";
-		auto it = expressions.begin();
-		for (; it != expressions.end() - 1; it++)
+		for (const auto& expr : expressions)
 		{
-			buffer << (*it)->toString() << ", ";
+			buffer << expr->toString();
+			if (expr != expressions.back())
+			{
+				buffer << ", ";
+			}
 		}
-		buffer << (*it)->toString() << ")";
+		buffer << ")";
 		return buffer.str();
     }
 
