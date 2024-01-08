@@ -30,15 +30,6 @@ Program::Program(int argc, char* argv[]) :
 	_program.add_argument("--output", "-o")
 		.help("specify the output file, the default is standard output");
 
-	auto& group = _program.add_mutually_exclusive_group();
-	group.add_argument("--lexer", "-l")
-		.flag()
-		.help("only run lexer to generate tokens (json format)");
-
-	group.add_argument("--parser", "-p")
-		.flag()
-		.help("only run lexer and parser to generate ast (json format)");
-
 	for (int i = 0; i < argc; i++)
 	{
 		_argv.push_back(argv[i]);
@@ -110,6 +101,7 @@ void Program::parse_source(const string& input, shared_ptr<Environment> env)
 
 	if (!parser->outputs().empty())
 	{
+		cerr << "parser has " << parser->outputs().size() << " outputs: " << '\n';
 		for (const auto& o : parser->outputs())
 		{
 			cerr << o << '\n';
@@ -123,6 +115,11 @@ void Program::parse_source(const string& input, shared_ptr<Environment> env)
 	if (!obj || obj->type == Object::Type::Null)
 	{
 		return;
+	}
+
+	if (obj->type == Object::Type::Error)
+	{
+		cerr << "evaluator has an error: " << '\n';
 	}
 
 	*_out << obj->inspect() << '\n';
