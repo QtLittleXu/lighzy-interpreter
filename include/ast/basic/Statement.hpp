@@ -9,7 +9,7 @@ namespace li
 class Stat : public Node
 {
 public:
-    Stat(const shared_ptr<Token>& token, Type type = Type::Stat) : Node(token, type) {}
+    Stat(shared_ptr<Token> token, Type type = Type::Stat) : Node(token, type) {}
 
     virtual string literal() const override
     {

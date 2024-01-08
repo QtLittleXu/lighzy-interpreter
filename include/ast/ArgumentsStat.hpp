@@ -13,7 +13,7 @@ namespace li
 class ArgumentsStat : public Stat
 {
 public:
-	ArgumentsStat(const shared_ptr<Token>& token) : 
+	ArgumentsStat(shared_ptr<Token> token) : 
 		Stat(token, Type::Arguments) {}
 
 	string toString() const override

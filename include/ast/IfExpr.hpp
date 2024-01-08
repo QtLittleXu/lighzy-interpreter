@@ -11,7 +11,7 @@ namespace li
 class IfExpr : public Expr
 {
 public:	
-	IfExpr(const shared_ptr<Token>& token) :
+	IfExpr(shared_ptr<Token> token) :
 		Expr(token, Type::If) {}
 
 	string toString() const override

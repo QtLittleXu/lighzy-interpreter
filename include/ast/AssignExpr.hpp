@@ -9,7 +9,7 @@ namespace li
 class AssignExpr : public Expr
 {
 public:
-    AssignExpr(const shared_ptr<Token>& token) :
+    AssignExpr(shared_ptr<Token> token) :
         Expr(token, Type::Assign) {}
 
 	string toString() const override

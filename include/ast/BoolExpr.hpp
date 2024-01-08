@@ -9,7 +9,7 @@ namespace li
 class BoolExpr : public Expr
 {
 public:
-    BoolExpr(const shared_ptr<Token>& token) :
+    BoolExpr(shared_ptr<Token> token) :
         Expr(token, Type::Bool) {}
 
     string toString() const override

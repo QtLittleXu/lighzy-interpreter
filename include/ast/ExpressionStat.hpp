@@ -10,7 +10,7 @@ namespace li
 class ExpressionStat : public Stat
 {
 public:
-    ExpressionStat(const shared_ptr<Token>& token) :
+    ExpressionStat(shared_ptr<Token> token) :
         Stat(token, Type::ExprStat) {}
 
     string toString() const override

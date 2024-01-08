@@ -10,7 +10,7 @@ namespace li
 class PrefixExpr : public Expr
 {
 public:
-    PrefixExpr(const shared_ptr<Token>& token) :
+    PrefixExpr(shared_ptr<Token> token) :
         Expr(token, Type::Prefix) {}
 
     string toString() const override

@@ -102,7 +102,7 @@ void Program::change_write_file(const string& fileName)
 	_out = &_outFile;
 }
 
-void Program::parse_source(const string& input, const shared_ptr<Environment>& env)
+void Program::parse_source(const string& input, shared_ptr<Environment> env)
 {
 	auto lexer = make_shared<li::Lexer>(read_folder_sources(PREREAD_SOURCES_PATH) + input);
 	auto parser = make_shared<li::Parser>(lexer);

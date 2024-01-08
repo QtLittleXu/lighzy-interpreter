@@ -10,7 +10,7 @@ namespace li
 class IntegerExpr : public Expr
 {
 public:
-    IntegerExpr(const shared_ptr<Token>& token) :
+    IntegerExpr(shared_ptr<Token> token) :
         Expr(token, Type::Integer) {}
 
     string toString() const override

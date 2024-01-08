@@ -9,7 +9,7 @@ namespace li
 class InDecrementExpr : public Expr
 {
 public:
-    InDecrementExpr(const shared_ptr<Token>& token) :
+    InDecrementExpr(shared_ptr<Token> token) :
         Expr(token, Type::InDecrement) {}
 
 	string toString() const override

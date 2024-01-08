@@ -10,7 +10,7 @@ namespace li
 class InfixExpr : public Expr
 {
 public:
-    InfixExpr(const shared_ptr<Token>& token) :
+    InfixExpr(shared_ptr<Token> token) :
         Expr(token, Type::Infix) {}
 
     string toString() const override

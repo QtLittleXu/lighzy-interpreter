@@ -59,7 +59,7 @@ TEST(ParserTest, toString)
 	EXPECT_EQ(program->toString(), "let testName = -1; return (114514 + 1919810); ");
 }
 
-void testLetStatement(const shared_ptr<Stat>& statement, const string& name, const string& value)
+void testLetStatement(shared_ptr<Stat> statement, const string& name, const string& value)
 {
 	auto temp = dynamic_pointer_cast<LetStat>(statement);
 	ASSERT_TRUE(temp);
@@ -69,7 +69,7 @@ void testLetStatement(const shared_ptr<Stat>& statement, const string& name, con
 	EXPECT_EQ(temp->value->toString(), value);
 }
 
-void testReturnStatement(const shared_ptr<Stat>& statement, const string& value)
+void testReturnStatement(shared_ptr<Stat> statement, const string& value)
 {
 	auto temp = dynamic_pointer_cast<ReturnStat>(statement);
 	ASSERT_TRUE(temp);
@@ -78,7 +78,7 @@ void testReturnStatement(const shared_ptr<Stat>& statement, const string& value)
 	EXPECT_EQ(temp->value->toString(), value);
 }
 
-void testIdentifierExpr(const shared_ptr<Expr>& expr, const string& name)
+void testIdentifierExpr(shared_ptr<Expr> expr, const string& name)
 {
 	auto temp = dynamic_pointer_cast<IdentifierExpr>(expr);
 	ASSERT_TRUE(temp);
@@ -86,7 +86,7 @@ void testIdentifierExpr(const shared_ptr<Expr>& expr, const string& name)
 	EXPECT_EQ(temp->toString(), name);
 }
 
-void testIntegerExpr(const shared_ptr<Expr>& expr, const string& value)
+void testIntegerExpr(shared_ptr<Expr> expr, const string& value)
 {
 	auto temp = dynamic_pointer_cast<IntegerExpr>(expr);
 	ASSERT_TRUE(temp);
@@ -94,7 +94,7 @@ void testIntegerExpr(const shared_ptr<Expr>& expr, const string& value)
 	EXPECT_EQ(temp->toString(), value);
 }
 
-void testFloatExpr(const shared_ptr<Expr>& expr, const string& value)
+void testFloatExpr(shared_ptr<Expr> expr, const string& value)
 {
 	ASSERT_EQ(expr->type, Node::Type::Float);
 	auto cast = dynamic_pointer_cast<FloatExpr>(expr);
@@ -102,7 +102,7 @@ void testFloatExpr(const shared_ptr<Expr>& expr, const string& value)
 	EXPECT_EQ(cast->toString(), value);
 }
 
-void testPrefixExpr(const shared_ptr<Expr>& expr, const string& operatorName, const string& right)
+void testPrefixExpr(shared_ptr<Expr> expr, const string& operatorName, const string& right)
 {
     auto temp = dynamic_pointer_cast<PrefixExpr>(expr);
     ASSERT_TRUE(temp);
@@ -111,7 +111,7 @@ void testPrefixExpr(const shared_ptr<Expr>& expr, const string& operatorName, co
 	EXPECT_EQ(temp->right->toString(), right);
 }
 
-void testInfixExpr(const shared_ptr<Expr>& expr, const string& left, const string& operatorName, const string& right)
+void testInfixExpr(shared_ptr<Expr> expr, const string& left, const string& operatorName, const string& right)
 {
     auto temp = dynamic_pointer_cast<InfixExpr>(expr);
     ASSERT_TRUE(temp);
@@ -121,7 +121,7 @@ void testInfixExpr(const shared_ptr<Expr>& expr, const string& left, const strin
     EXPECT_EQ(temp->right->toString(), right);
 }
 
-void testBoolExpr(const shared_ptr<Expr>& expr, const string& value)
+void testBoolExpr(shared_ptr<Expr> expr, const string& value)
 {
 	auto temp = dynamic_pointer_cast<BoolExpr>(expr);
     ASSERT_TRUE(temp);
@@ -129,7 +129,7 @@ void testBoolExpr(const shared_ptr<Expr>& expr, const string& value)
     EXPECT_EQ(temp->toString(), value);
 }
 
-void testIfExpr(const shared_ptr<Expr>& expr, const string& condition, const string& consequence, const string& alternative)
+void testIfExpr(shared_ptr<Expr> expr, const string& condition, const string& consequence, const string& alternative)
 {
 	auto temp = dynamic_pointer_cast<IfExpr>(expr);
     ASSERT_TRUE(temp);
@@ -139,7 +139,7 @@ void testIfExpr(const shared_ptr<Expr>& expr, const string& condition, const str
 	EXPECT_EQ(temp->alternative->toString(), alternative);
 }
 
-void testFunctionExpr(const shared_ptr<Expr>& expr, const string& args, const string& body)
+void testFunctionExpr(shared_ptr<Expr> expr, const string& args, const string& body)
 {
 	auto temp = dynamic_pointer_cast<FunctionExpr>(expr);
     ASSERT_TRUE(temp);
@@ -148,7 +148,7 @@ void testFunctionExpr(const shared_ptr<Expr>& expr, const string& args, const st
 	EXPECT_EQ(temp->args->toString(), args);
 }
 
-void testCallExpr(const shared_ptr<Expr>& expr, const string& fun, const string& exprs)
+void testCallExpr(shared_ptr<Expr> expr, const string& fun, const string& exprs)
 {
 	auto temp = dynamic_pointer_cast<CallExpr>(expr);
     ASSERT_TRUE(temp);
@@ -157,13 +157,13 @@ void testCallExpr(const shared_ptr<Expr>& expr, const string& fun, const string&
 	EXPECT_EQ(temp->exprs->toString(), exprs);
 }
 
-void testOperatorPrecedence(const shared_ptr<Expr>& expr, const string& result)
+void testOperatorPrecedence(shared_ptr<Expr> expr, const string& result)
 {
     ASSERT_TRUE(expr);
 	EXPECT_EQ(expr->toString(), result);
 }
 
-void testStringExpr(const shared_ptr<Expr>& expr, const string& value)
+void testStringExpr(shared_ptr<Expr> expr, const string& value)
 {
 	ASSERT_EQ(expr->type, Node::Type::String);
 	auto cast = dynamic_pointer_cast<StringExpr>(expr);
@@ -171,7 +171,7 @@ void testStringExpr(const shared_ptr<Expr>& expr, const string& value)
 	EXPECT_EQ(cast->value, value);
 }
 
-void testAssignExpr(const shared_ptr<Expr>& expr, const string& id, const string& operatorName, const string& value)
+void testAssignExpr(shared_ptr<Expr> expr, const string& id, const string& operatorName, const string& value)
 {
 	ASSERT_EQ(expr->type, Node::Type::Assign);
 	auto cast = dynamic_pointer_cast<AssignExpr>(expr);
@@ -181,7 +181,7 @@ void testAssignExpr(const shared_ptr<Expr>& expr, const string& id, const string
 	EXPECT_EQ(cast->value->toString(), value);
 }
 
-void testInDecrementExpr(const shared_ptr<Expr>& expr, const string& id, const string& operatorName)
+void testInDecrementExpr(shared_ptr<Expr> expr, const string& id, const string& operatorName)
 {
 	ASSERT_EQ(expr->type, Node::Type::InDecrement);
 	auto cast = dynamic_pointer_cast<InDecrementExpr>(expr);

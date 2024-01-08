@@ -12,7 +12,7 @@ namespace li
 class ReturnStat : public Stat
 {
 public:
-	ReturnStat(const shared_ptr<Token>& token) :
+	ReturnStat(shared_ptr<Token> token) :
 		Stat(token, Node::Type::Return) {}
 
 	string toString() const override

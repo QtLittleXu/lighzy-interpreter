@@ -11,7 +11,7 @@ namespace li
 class FunctionExpr : public Expr
 {
 public:
-	FunctionExpr(const shared_ptr<Token>& token) :
+	FunctionExpr(shared_ptr<Token> token) :
 		Expr(token, Type::Function) {}
 
 	string toString() const override

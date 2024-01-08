@@ -9,7 +9,7 @@ namespace li
 class Program : public Node
 {
 public:
-    Program(const shared_ptr<Token>& token) :
+    Program(shared_ptr<Token> token) :
         Node(token, Node::Type::Program) {}
 
     string literal() const override
