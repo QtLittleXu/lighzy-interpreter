@@ -10,7 +10,7 @@ namespace li
 class FloatExpr : public Expr
 {
 public:
-    FloatExpr(const shared_ptr<Token>& token) :
+    FloatExpr(shared_ptr<Token> token) :
         Expr(token, Type::Float) {}
 
     string toString() const override

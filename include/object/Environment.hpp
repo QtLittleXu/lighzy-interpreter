@@ -9,10 +9,10 @@ namespace li
 class Environment
 {
 public:
-	Environment(const shared_ptr<Environment>& outer = nullptr) : outer(outer) {}
+	Environment(shared_ptr<Environment> outer = nullptr) : outer(outer) {}
 
 	// This function will set the value of name if name can be found, otherwise do nothing
-	void set(const string& name, const shared_ptr<Object>& value)
+	void set(const string& name, shared_ptr<Object> value)
 	{
 		auto* found = get(name);
 		if (found != nullptr)
@@ -21,7 +21,7 @@ public:
 		}
 	}
 
-	void add(const string& name, const shared_ptr<Object>& value)
+	void add(const string& name, shared_ptr<Object> value)
 	{
 		store.emplace(name, value);
 	}

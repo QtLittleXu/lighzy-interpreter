@@ -9,7 +9,7 @@ namespace li
 class ReturnValue : public Object
 {
 public:
-	ReturnValue(const shared_ptr<Object>& value = nullptr) : Object(Type::ReturnValue), value(value) {}
+	ReturnValue(shared_ptr<Object> value = nullptr) : Object(Type::ReturnValue), value(value) {}
 
 	string inspect() const override
 	{

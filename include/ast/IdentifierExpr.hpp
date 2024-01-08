@@ -9,7 +9,7 @@ namespace li
 class IdentifierExpr : public Expr
 {
 public:
-    IdentifierExpr(const shared_ptr<Token>& token) :
+    IdentifierExpr(shared_ptr<Token> token) :
         Expr(token, Type::Identifier) {}
 
     string toString() const override

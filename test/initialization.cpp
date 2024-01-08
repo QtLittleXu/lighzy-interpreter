@@ -18,7 +18,7 @@ namespace li::test
 {
 
 
-void checkParserOutputs(const shared_ptr<Parser>& parser)
+void checkParserOutputs(shared_ptr<Parser> parser)
 {
 	for (const auto& output : parser->outputs())
 	{

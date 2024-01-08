@@ -18,7 +18,7 @@ namespace li
 {
 
 
-Parser::Parser(const shared_ptr<Lexer>& lexer) :
+Parser::Parser(shared_ptr<Lexer> lexer) :
     _lexer(lexer)
 {
     parse_token();
@@ -253,7 +253,7 @@ shared_ptr<Expr> Parser::parse_identifier()
 	return expr;
 }
 
-shared_ptr<Expr> Parser::parse_infix(const shared_ptr<Expr>& left)
+shared_ptr<Expr> Parser::parse_infix(shared_ptr<Expr> left)
 {
 	auto expr = make_shared<InfixExpr>(_current);
 	expr->left = left;
@@ -391,7 +391,7 @@ shared_ptr<ExpressionsStat> Parser::parse_exprs(Token::Type end)
 	return exprs;
 }
 
-shared_ptr<Expr> Parser::parse_call(const shared_ptr<Expr>& fun)
+shared_ptr<Expr> Parser::parse_call(shared_ptr<Expr> fun)
 {
 	auto expr = make_shared<CallExpr>(_current);
 	expr->fun = fun;
@@ -403,7 +403,7 @@ shared_ptr<Expr> Parser::parse_call(const shared_ptr<Expr>& fun)
 	return expr;
 }
 
-shared_ptr<Expr> Parser::parse_assign(const shared_ptr<Expr>& id)
+shared_ptr<Expr> Parser::parse_assign(shared_ptr<Expr> id)
 {
 	auto expr = make_shared<AssignExpr>(_current);
 	expr->id = id;
@@ -463,7 +463,7 @@ shared_ptr<Expr> Parser::parse_in_decrement()
 	return expr;
 }
 
-shared_ptr<Expr> Parser::parse_index(const shared_ptr<Expr>& left)
+shared_ptr<Expr> Parser::parse_index(shared_ptr<Expr> left)
 {
 	auto expr = make_shared<IndexExpr>(_current);
 	expr->left = left;

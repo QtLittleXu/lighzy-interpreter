@@ -11,7 +11,7 @@ namespace li
 class CallExpr : public Expr
 {
 public:
-	CallExpr(const shared_ptr<Token>& token) :
+	CallExpr(shared_ptr<Token> token) :
 		Expr(token, Type::Call) {}
 
 	string toString() const override

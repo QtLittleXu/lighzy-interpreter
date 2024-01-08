@@ -28,16 +28,16 @@ namespace li
 {
 
 
-const shared_ptr<Bool> Evaluator::bool_true = make_shared<Bool>(true);
-const shared_ptr<Bool> Evaluator::bool_false = make_shared<Bool>(false);
-const shared_ptr<Null> Evaluator::null = make_shared<Null>();
+shared_ptr<Bool> Evaluator::bool_true = make_shared<Bool>(true);
+shared_ptr<Bool> Evaluator::bool_false = make_shared<Bool>(false);
+shared_ptr<Null> Evaluator::null = make_shared<Null>();
 
-const shared_ptr<Bool>& Evaluator::evaluate_bool(const shared_ptr<BoolExpr>& node)
+shared_ptr<Bool> Evaluator::evaluate_bool(shared_ptr<BoolExpr> node)
 {
 	return node->value ? bool_true : bool_false;
 }
 
-shared_ptr<Object> Evaluator::evaluate_program(const shared_ptr<Program>& node, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_program(shared_ptr<Program> node, shared_ptr<Environment> env)
 {
 	shared_ptr<Object> result;
 	for (const auto& statement : node->statements)
@@ -58,7 +58,7 @@ shared_ptr<Object> Evaluator::evaluate_program(const shared_ptr<Program>& node, 
 	return result;
 }
 
-shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& value)
+shared_ptr<Object> Evaluator::evaluate_prefix_bang(shared_ptr<Object> value)
 {
 	if (value->type == Object::Type::Integer)
 	{
@@ -82,7 +82,7 @@ shared_ptr<Object> Evaluator::evaluate_prefix_bang(const shared_ptr<Object>& val
 	return operand_type_error("prefix", "!", value->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_prefix_minus(const shared_ptr<Object>& value)
+shared_ptr<Object> Evaluator::evaluate_prefix_minus(shared_ptr<Object> value)
 {
 	switch (value->type)
 	{
@@ -161,7 +161,7 @@ shared_ptr<Object> Evaluator::index_operand_type(const string& left, const strin
 	return make_shared<Error>(buffer.str());
 }
 
-shared_ptr<Object> Evaluator::evaluate_prefix(const string& operatorName, const shared_ptr<Object>& right)
+shared_ptr<Object> Evaluator::evaluate_prefix(const string& operatorName, shared_ptr<Object> right)
 {
 	if (operatorName == "!")
 	{
@@ -180,7 +180,7 @@ shared_ptr<Bool> Evaluator::bool_to_object(bool value)
 	return value ? bool_true : bool_false;
 }
 
-shared_ptr<Object> Evaluator::evaluate_infix_number(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
+shared_ptr<Object> Evaluator::evaluate_infix_number(shared_ptr<Object> left, const string& operatorName, shared_ptr<Object> right)
 {
 	double leftValue = 0;
 	double rightValue = 0;
@@ -284,7 +284,7 @@ shared_ptr<Object> Evaluator::evaluate_infix_number(const shared_ptr<Object>& le
 	return unknown_infix(left->typeName(), operatorName, right->typeName());
 }
 
-bool Evaluator::is_true(const shared_ptr<Object>& obj)
+bool Evaluator::is_true(shared_ptr<Object> obj)
 {
 	if (obj == null || obj == bool_false)
 	{
@@ -297,7 +297,7 @@ bool Evaluator::is_true(const shared_ptr<Object>& obj)
 	return true;
 }
 
-shared_ptr<Object> Evaluator::evaluate_infix_string(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
+shared_ptr<Object> Evaluator::evaluate_infix_string(shared_ptr<Object> left, const string& operatorName, shared_ptr<Object> right)
 {
 	auto leftValue = dynamic_pointer_cast<String>(left)->value;
 	auto rightValue = dynamic_pointer_cast<String>(right)->value;
@@ -318,7 +318,7 @@ shared_ptr<Object> Evaluator::evaluate_infix_string(const shared_ptr<Object>& le
 	return unknown_infix(left->typeName(), operatorName, right->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, const string& operatorName, const shared_ptr<Object>& right)
+shared_ptr<Object> Evaluator::evaluate_infix(shared_ptr<Object> left, const string& operatorName, shared_ptr<Object> right)
 {
 	if (left->type == Object::Type::Integer || left->type == Object::Type::Float)
 	{
@@ -346,7 +346,7 @@ shared_ptr<Object> Evaluator::evaluate_infix(const shared_ptr<Object>& left, con
 	return unknown_infix(left->typeName(), operatorName, right->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_block(const shared_ptr<BlockStat>& node, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_block(shared_ptr<BlockStat> node, shared_ptr<Environment> env)
 {
 	shared_ptr<Object> result;
 	for (const auto& statement : node->statements)
@@ -363,7 +363,7 @@ shared_ptr<Object> Evaluator::evaluate_block(const shared_ptr<BlockStat>& node, 
 	return result;
 }
 
-shared_ptr<Object> Evaluator::evaluate_if(const shared_ptr<IfExpr>& node, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_if(shared_ptr<IfExpr> node, shared_ptr<Environment> env)
 {
 	if (is_true(evaluate(node->condition, env)))
 	{
@@ -376,7 +376,7 @@ shared_ptr<Object> Evaluator::evaluate_if(const shared_ptr<IfExpr>& node, const 
 	return null;
 }
 
-shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpr>& id, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_id(shared_ptr<IdentifierExpr> id, shared_ptr<Environment> env)
 {
 	auto* value = env->get(id->value);
 	if (value != nullptr)
@@ -393,7 +393,7 @@ shared_ptr<Object> Evaluator::evaluate_id(const shared_ptr<IdentifierExpr>& id, 
 	return identifier_not_found(id->value);
 }
 
-vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<ExpressionsStat>& exprs, const shared_ptr<Environment>& env)
+vector<shared_ptr<Object>> Evaluator::evaluate_exprs(shared_ptr<ExpressionsStat> exprs, shared_ptr<Environment> env)
 {
 	vector<shared_ptr<Object>> result;
 	for (const auto& expr : exprs->expressions)
@@ -408,7 +408,7 @@ vector<shared_ptr<Object>> Evaluator::evaluate_exprs(const shared_ptr<Expression
 	return result;
 }
 
-tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_objects(const shared_ptr<Function>& fun, const vector<shared_ptr<Object>>& objects)
+tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_objects(shared_ptr<Function> fun, const vector<shared_ptr<Object>>& objects)
 {
 	if (fun->args->args.size() != objects.size())
 	{
@@ -424,7 +424,7 @@ tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_o
 	return { nullptr, env };
 }
 
-shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Object>& fun, const vector<shared_ptr<Object>>& args)
+shared_ptr<Object> Evaluator::evaluate_fun(shared_ptr<Object> fun, const vector<shared_ptr<Object>>& args)
 {
 	switch (fun->type)
 	{
@@ -456,7 +456,7 @@ shared_ptr<Object> Evaluator::evaluate_fun(const shared_ptr<Object>& fun, const 
 	}
 }
 
-shared_ptr<Object> Evaluator::evaluate_index(const shared_ptr<Object>& left, const shared_ptr<Object>& index)
+shared_ptr<Object> Evaluator::evaluate_index(shared_ptr<Object> left, shared_ptr<Object> index)
 {
 	if (left->type == Object::Type::Array && index->type == Object::Type::Integer)
 	{
@@ -466,7 +466,7 @@ shared_ptr<Object> Evaluator::evaluate_index(const shared_ptr<Object>& left, con
 	return index_operand_type(left->typeName(), index->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_index_array(const shared_ptr<Array>& array, const shared_ptr<Integer>& index)
+shared_ptr<Object> Evaluator::evaluate_index_array(shared_ptr<Array> array, shared_ptr<Integer> index)
 {
 	size_t size = array->elements.size();
 	if (index->value >= size || index->value < 0)
@@ -476,7 +476,7 @@ shared_ptr<Object> Evaluator::evaluate_index_array(const shared_ptr<Array>& arra
 	return array->elements.at(index->value);
 }
 
-shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const string& operatorName, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const string& operatorName, shared_ptr<Environment> env)
 {
 	auto value = *env->get(id);
 	if (operatorName == "++")
@@ -516,7 +516,7 @@ shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const stri
 	return unknown_prefix(operatorName, value->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_assign(const shared_ptr<AssignExpr>& expr, const shared_ptr<Object>& value, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_assign(shared_ptr<AssignExpr> expr, shared_ptr<Object> value, shared_ptr<Environment> env)
 {
 	switch (expr->id->type)
 	{
@@ -563,7 +563,7 @@ shared_ptr<Object> Evaluator::evaluate_assign(const shared_ptr<AssignExpr>& expr
 	}
 }
 
-shared_ptr<Object> Evaluator::evaluate_assign_index(const shared_ptr<IndexExpr>& expr, const shared_ptr<Object>& value, const string& operatorName, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate_assign_index(shared_ptr<IndexExpr> expr, shared_ptr<Object> value, const string& operatorName, shared_ptr<Environment> env)
 {
 	auto array = dynamic_pointer_cast<Array>(*env->get(expr->left->literal()));
 	auto left = evaluate(expr->index, env);
@@ -604,7 +604,7 @@ shared_ptr<Object> Evaluator::evaluate_assign_index(const shared_ptr<IndexExpr>&
 	return operand_type_error("assign", operatorName, value->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate(const shared_ptr<Node>& node, const shared_ptr<Environment>& env)
+shared_ptr<Object> Evaluator::evaluate(shared_ptr<Node> node, shared_ptr<Environment> env)
 {
 	switch (node->type)
 	{

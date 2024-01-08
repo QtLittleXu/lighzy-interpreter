@@ -10,7 +10,7 @@ namespace li
 class ArrayExpr : public Expr
 {
 public:
-    ArrayExpr(const shared_ptr<Token>& token) :
+    ArrayExpr(shared_ptr<Token> token) :
         Expr(token, Type::Array) {}
 
     string toString() const override

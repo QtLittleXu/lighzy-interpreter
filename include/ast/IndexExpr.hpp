@@ -9,7 +9,7 @@ namespace li
 class IndexExpr : public Expr
 {
 public:
-    IndexExpr(const shared_ptr<Token>& token) :
+    IndexExpr(shared_ptr<Token> token) :
         Expr(token, Type::Index) {}
 
     string toString() const override

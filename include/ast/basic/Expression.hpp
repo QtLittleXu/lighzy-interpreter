@@ -9,7 +9,7 @@ namespace li
 class Expr : public Node
 {
 public:
-    Expr(const shared_ptr<Token>& token, Type type = Type::Expr) : Node(token, type) {}
+    Expr(shared_ptr<Token> token, Type type = Type::Expr) : Node(token, type) {}
 
     virtual string literal() const override
     {

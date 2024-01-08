@@ -11,9 +11,9 @@ namespace li
 class Function : public Object
 {
 public:
-	Function(const shared_ptr<ArgumentsStat>& args = nullptr,
-			 const shared_ptr<BlockStat>& body = nullptr,
-			 const shared_ptr<Environment>& env = nullptr) :
+	Function(shared_ptr<ArgumentsStat> args = nullptr,
+			 shared_ptr<BlockStat> body = nullptr,
+			 shared_ptr<Environment> env = nullptr) :
 	Object(Type::Function), args(args), body(body), env(env) {}
 
 	string inspect() const override

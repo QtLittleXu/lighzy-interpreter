@@ -9,7 +9,7 @@ namespace li
 class BlockStat : public Stat
 {
 public:
-	BlockStat(const shared_ptr<Token>& token) :
+	BlockStat(shared_ptr<Token> token) :
 		Stat(token, Type::Block) {}
 
 	string toString() const override

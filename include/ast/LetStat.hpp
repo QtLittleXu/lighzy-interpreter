@@ -13,7 +13,7 @@ namespace li
 class LetStat : public Stat
 {
 public:
-    LetStat(const shared_ptr<Token>& token) :
+    LetStat(shared_ptr<Token> token) :
         Stat(token, Type::Let) {}
 
     string toString() const override

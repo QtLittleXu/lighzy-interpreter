@@ -11,7 +11,7 @@ namespace li
 class WhileStat : public Stat
 {
 public:
-    WhileStat(const shared_ptr<Token>& token) :
+    WhileStat(shared_ptr<Token> token) :
         Stat(token, Type::While) {}
 
     string toString() const override

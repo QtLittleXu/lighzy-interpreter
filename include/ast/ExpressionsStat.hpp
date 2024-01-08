@@ -10,19 +10,22 @@ namespace li
 class ExpressionsStat : public Stat
 {
 public:
-    ExpressionsStat(const shared_ptr<Token>& token) :
+    ExpressionsStat(shared_ptr<Token> token) :
         Stat(token, Type::Exprs) {}
 
     string toString() const override
     {
 		stringstream buffer;
 		buffer << "(";
-		auto it = expressions.begin();
-		for (; it != expressions.end() - 1; it++)
+		for (const auto& expr : expressions)
 		{
-			buffer << (*it)->toString() << ", ";
+			buffer << expr->toString();
+			if (expr != expressions.back())
+			{
+				buffer << ", ";
+			}
 		}
-		buffer << (*it)->toString() << ")";
+		buffer << ")";
 		return buffer.str();
     }
 

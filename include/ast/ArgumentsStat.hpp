@@ -13,19 +13,22 @@ namespace li
 class ArgumentsStat : public Stat
 {
 public:
-	ArgumentsStat(const shared_ptr<Token>& token) : 
+	ArgumentsStat(shared_ptr<Token> token) : 
 		Stat(token, Type::Arguments) {}
 
 	string toString() const override
 	{
 		stringstream buffer;
 		buffer << "(";
-		auto it = args.begin();
-		for (; it != args.end() - 1; it++)
+		for (const auto& arg : args)
 		{
-			buffer << (*it)->toString() << ", ";
+			buffer << arg->toString();
+			if (arg != args.back())
+			{
+				buffer << ", ";
+			}
 		}
-		buffer << (*it)->toString() << ")";
+		buffer << ")";
 		return buffer.str();
 	}
 

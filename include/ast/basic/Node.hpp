@@ -22,7 +22,7 @@ public:
     };
 
 public:
-    Node(const shared_ptr<Token>& token, Type type) : token(token), type(type) {}
+    Node(shared_ptr<Token> token, Type type) : token(token), type(type) {}
     virtual string literal() const = 0;
     virtual string toString() const = 0;
 

@@ -18,18 +18,18 @@ class Parser
 {
 public:
 	using prefix_parse_fun = function<shared_ptr<Expr>()>;
-	using infix_parse_fun = function<shared_ptr<Expr>(const shared_ptr<Expr>&)>;
+	using infix_parse_fun = function<shared_ptr<Expr>(shared_ptr<Expr>)>;
 	enum PrecedenceType
 	{
 		Lowest, Equals, LessGreater, Sum, Product, Assign, Prefix, Index, Call
 	};
 
 public:
-	Parser(const shared_ptr<Lexer>& lexer);
+	Parser(shared_ptr<Lexer> lexer);
 	shared_ptr<Program> parseProgram();
 
 public:
-	const vector<string>& outputs() const
+	const auto& outputs() const
 	{
 		return _outputs;
 	}
@@ -68,10 +68,10 @@ private:
 	shared_ptr<Expr> parse_array();
 	shared_ptr<Expr> parse_in_decrement();
 
-	shared_ptr<Expr> parse_infix(const shared_ptr<Expr>& left);
-	shared_ptr<Expr> parse_call(const shared_ptr<Expr>& fun);
-	shared_ptr<Expr> parse_assign(const shared_ptr<Expr>& id);
-	shared_ptr<Expr> parse_index(const shared_ptr<Expr>& left);
+	shared_ptr<Expr> parse_infix(shared_ptr<Expr> left);
+	shared_ptr<Expr> parse_call(shared_ptr<Expr> fun);
+	shared_ptr<Expr> parse_assign(shared_ptr<Expr> id);
+	shared_ptr<Expr> parse_index(shared_ptr<Expr> left);
 
 private:
 	shared_ptr<Lexer> _lexer;
