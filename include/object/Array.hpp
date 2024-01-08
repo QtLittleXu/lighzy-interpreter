@@ -9,7 +9,7 @@ namespace li
 class Array : public Object
 {
 public:
-	Array(const vector<shared_ptr<Object>> elements) : Object(Type::Array), elements(elements) {}
+	Array(const vector<shared_ptr<Object>>& elements) : Object(Type::Array), elements(elements) {}
 
 	string inspect() const override
 	{

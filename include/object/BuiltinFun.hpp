@@ -10,7 +10,7 @@ namespace li
 class BuiltinFun : public Object
 {
 public:
-	using built_in_fun = function<shared_ptr<Object>( const vector<shared_ptr<Object>> )>;
+	using built_in_fun = function<shared_ptr<Object>( const vector<shared_ptr<Object>>& )>;
 
 public:
 	BuiltinFun(const built_in_fun& fun = {}, const string& inspectText = "") : Object(Type::BuiltinFun), fun(fun), inspectText(inspectText) {}

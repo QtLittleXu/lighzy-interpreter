@@ -408,7 +408,7 @@ vector<shared_ptr<Object>> Evaluator::evaluate_exprs(shared_ptr<ExpressionsStat>
 	return result;
 }
 
-tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_objects(shared_ptr<Function> fun, const vector<shared_ptr<Object>> objects)
+tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_objects(shared_ptr<Function> fun, const vector<shared_ptr<Object>>& objects)
 {
 	if (fun->args->args.size() != objects.size())
 	{
@@ -424,7 +424,7 @@ tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_o
 	return { nullptr, env };
 }
 
-shared_ptr<Object> Evaluator::evaluate_fun(shared_ptr<Object> fun, const vector<shared_ptr<Object>> args)
+shared_ptr<Object> Evaluator::evaluate_fun(shared_ptr<Object> fun, const vector<shared_ptr<Object>>& args)
 {
 	switch (fun->type)
 	{

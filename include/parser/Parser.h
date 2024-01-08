@@ -29,7 +29,7 @@ public:
 	shared_ptr<Program> parseProgram();
 
 public:
-	const vector<string> outputs() const
+	const auto& outputs() const
 	{
 		return _outputs;
 	}

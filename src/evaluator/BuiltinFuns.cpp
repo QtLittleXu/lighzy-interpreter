@@ -11,7 +11,7 @@ const map<string, shared_ptr<BuiltinFun>> Evaluator::builtinFuns =
 	{ "_builtin_", make_shared<BuiltinFun>(BuiltinFuns::_builtin_, "_builtin_") }
 };
 
-shared_ptr<Object> BuiltinFuns::_builtin_(const vector<shared_ptr<Object>> objs)
+shared_ptr<Object> BuiltinFuns::_builtin_(const vector<shared_ptr<Object>>& objs)
 {
 	if (objs.empty())
 	{
@@ -40,7 +40,7 @@ shared_ptr<Object> BuiltinFuns::_builtin_(const vector<shared_ptr<Object>> objs)
 	}
 }
 
-shared_ptr<Object> BuiltinFuns::print(const vector<shared_ptr<Object>> objs)
+shared_ptr<Object> BuiltinFuns::print(const vector<shared_ptr<Object>>& objs)
 {
 	if (objs.empty())
 	{
@@ -63,7 +63,7 @@ shared_ptr<Object> BuiltinFuns::print(const vector<shared_ptr<Object>> objs)
 	return Evaluator::null;
 }
 
-shared_ptr<Object> BuiltinFuns::len(const vector<shared_ptr<Object>> objs)
+shared_ptr<Object> BuiltinFuns::len(const vector<shared_ptr<Object>>& objs)
 {
 	if (objs.size() != 1)
 	{

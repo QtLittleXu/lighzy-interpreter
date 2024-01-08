@@ -41,7 +41,7 @@ public:
 
 private:
 	shared_ptr<Bool> evaluate_bool(shared_ptr<BoolExpr> node);
-	tuple<shared_ptr<Object>, shared_ptr<Environment>> bind_fun_args_to_objects(shared_ptr<Function> fun, const vector<shared_ptr<Object>> objects);
+	tuple<shared_ptr<Object>, shared_ptr<Environment>> bind_fun_args_to_objects(shared_ptr<Function> fun, const vector<shared_ptr<Object>>& objects);
 
 	shared_ptr<Object> evaluate_prefix(const string& operatorName, shared_ptr<Object> right);
 	shared_ptr<Object> evaluate_prefix_bang(shared_ptr<Object> value);
@@ -51,7 +51,7 @@ private:
 	shared_ptr<Object> evaluate_if(shared_ptr<IfExpr> node, shared_ptr<Environment> env);
 	shared_ptr<Object> evaluate_program(shared_ptr<Program> node, shared_ptr<Environment> env);
 	shared_ptr<Object> evaluate_id(shared_ptr<IdentifierExpr> id, shared_ptr<Environment> env);
-	shared_ptr<Object> evaluate_fun(shared_ptr<Object> fun, const vector<shared_ptr<Object>> args);
+	shared_ptr<Object> evaluate_fun(shared_ptr<Object> fun, const vector<shared_ptr<Object>>& args);
 	shared_ptr<Object> evaluate_infix_string(shared_ptr<Object> left, const string& operatorName, shared_ptr<Object> right);
 	shared_ptr<Object> evaluate_infix_number(shared_ptr<Object> left, const string& operatorName, shared_ptr<Object> right);
 	vector<shared_ptr<Object>> evaluate_exprs(shared_ptr<ExpressionsStat> exprs, shared_ptr<Environment> env);
