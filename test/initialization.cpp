@@ -1,14 +1,18 @@
 #include <gtest/gtest.h>
+#include <fstream>
+#include <filesystem>
 #include "initialization.h"
 #include "evaluator/Evaluator.h"
+#include "parser/Parser.h"
 #include "object/Float.hpp"
-#include "program/Program.h"
 #include "object/Integer.hpp"
 #include "object/Bool.hpp"
 #include "object/Error.hpp"
 #include "object/String.hpp"
 #include "object/Array.hpp"
 #include "object/Null.hpp"
+#include "program/initialization.h"
+#include "config.h"
 
 namespace li::test
 {
@@ -52,9 +56,50 @@ shared_ptr<Object> initEvaluator(const string& input)
 	return obj;
 }
 
+string read_file(const string& fileName)
+{
+	string output;
+	string buffer;
+	ifstream in(fileName, ios::in);
+	if (!in)
+	{
+		cerr << "File \"" << fileName << "\" read failed! \n";
+		return "";
+	}
+
+	while (getline(in, buffer))
+	{
+		output += buffer + '\n';
+	}
+	return output;
+}
+
+string read_folder_sources(const filesystem::path& folder)
+{
+	if (!filesystem::is_directory(folder))
+	{
+		cerr << "cannot read standard library! " << '\n';
+		return "";
+	}
+
+	string sources;
+	for (const auto& entry : filesystem::directory_iterator(folder))
+	{
+		if (filesystem::is_directory(entry))
+        {
+            sources += read_folder_sources(entry.path());
+            continue;
+        }
+
+		string fileName = entry.path().string();
+		sources += read_file(fileName);
+	}
+	return sources;
+}
+
 shared_ptr<Object> initProgram(const string& input)
 {
-	string sources = program::Program::read_preread_sources(program::Program::PREREAD_SOURCES_PATH);
+	string sources = read_folder_sources(program::executable_path().parent_path().parent_path().parent_path() / PREREAD_SOURCES_DIR);
 	return initEvaluator(sources + input);
 }
 

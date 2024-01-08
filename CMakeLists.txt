@@ -16,7 +16,6 @@ configure_file(config.h.in config.h)
 
 option(BUILD_TEST "build the target test" ON)
 
-find_package(nlohmann_json REQUIRED)
 find_package(argparse REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-ftemplate-backtrace-limit=1")
@@ -33,6 +32,7 @@ set(LIBRARY_SOURCES
     src/evaluator/Evaluator.cpp
     src/evaluator/BuiltinFuns.cpp
     src/program/Program.cpp
+    src/program/initialization.cpp
 )
 
 set(PROGRAM_SOURCES
@@ -55,7 +55,7 @@ target_link_libraries(${LI_PROGRAM} PRIVATE
 add_custom_command(
     TARGET ${LI_PROGRAM}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${PREREAD_SOURCES_DIR} ${PROJECT_BINARY_DIR}/${PREREAD_SOURCES_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${PREREAD_SOURCES_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${PREREAD_SOURCES_DIR}
 )
 
 # test
