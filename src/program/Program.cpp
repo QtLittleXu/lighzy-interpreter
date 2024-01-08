@@ -1,18 +1,20 @@
 #include <fstream>
 #include <filesystem>
 #include "program/Program.h"
+#include "program/initialization.h"
 #include "parser/Parser.h"
 #include "evaluator/Evaluator.h"
-#include "evaluator/BuiltinFuns.h"
 #include "config.h"
 
 namespace li::program
 {
 
 
-const string Program::PREREAD_SOURCES_PATH = "../preread-sources";
+const filesystem::path Program::PREREAD_SOURCES_PATH = executable_path().parent_path().parent_path() / PREREAD_SOURCES_DIR;
 
-Program::Program() : _program(EXECUTABLE_NAME, PROJECT_VERSION), _out(&cout)
+Program::Program(int argc, char* argv[]) :
+	_program(EXECUTABLE_NAME, PROJECT_VERSION),
+	_out(&cout)
 {
 	_program.add_description(EXECUTABLE_DESCRIPTION);
 
@@ -36,6 +38,11 @@ Program::Program() : _program(EXECUTABLE_NAME, PROJECT_VERSION), _out(&cout)
 	group.add_argument("--parser", "-p")
 		.flag()
 		.help("only run lexer and parser to generate ast (json format)");
+
+	for (int i = 0; i < argc; i++)
+	{
+		_argv.push_back(argv[i]);
+	}
 }
 
 string Program::get_source_file_name()
@@ -54,11 +61,11 @@ string Program::get_source_file_name()
 	return fileName;
 }
 
-int Program::run(int argc, char* argv[])
+int Program::run()
 {
     try
     {
-        _program.parse_args(argc, argv);
+        _program.parse_args(_argv);
     }
     catch (const exception& err)
     {
@@ -97,7 +104,7 @@ void Program::change_write_file(const string& fileName)
 
 void Program::parse_source(const string& input, const shared_ptr<Environment>& env)
 {
-	auto lexer = make_shared<li::Lexer>(read_preread_sources(PREREAD_SOURCES_PATH) + input);
+	auto lexer = make_shared<li::Lexer>(read_folder_sources(PREREAD_SOURCES_PATH) + input);
 	auto parser = make_shared<li::Parser>(lexer);
 	auto program = parser->parseProgram();
 
@@ -139,27 +146,24 @@ string Program::read_file(const string& fileName)
 	return output;
 }
 
-string Program::read_preread_sources(const string& folderName)
+string Program::read_folder_sources(const filesystem::path& folder)
 {
-	filesystem::path path(folderName);
-    if (!filesystem::exists(path) ||
-		!filesystem::is_directory(path))
+    if (!filesystem::is_directory(folder))
 	{
-		stringstream read_error;
-		read_error << "_builtin_(" << BuiltinFuns::Print << R"(, "cannot read preread sources! ", true))";
-		return read_error.str();
+		cerr << "cannot read standard library! " << '\n';
+		return "";
 	}
 
 	string sources;
-	for (const auto& entry : filesystem::directory_iterator(path))
+	for (const auto& entry : filesystem::directory_iterator(folder))
 	{
 		if (filesystem::is_directory(entry))
         {
-            sources += read_preread_sources(entry.path());
+            sources += read_folder_sources(entry.path());
             continue;
         }
 
-		string fileName = entry.path();
+		string fileName = entry.path().string();
 		sources += read_file(fileName);
 	}
 	return sources;
