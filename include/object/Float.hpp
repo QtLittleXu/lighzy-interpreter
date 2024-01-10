@@ -18,6 +18,11 @@ public:
 		return buffer.str();
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<Float>(*this);
+	}
+
 public:
 	double value;
 };

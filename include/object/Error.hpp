@@ -15,6 +15,11 @@ public:
 		return message;
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<Error>(*this);
+	}
+
 public:
 	string message;
 };

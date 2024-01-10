@@ -16,6 +16,11 @@ public:
 		return value ? "true" : "false";
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<Bool>(*this);
+	}
+
 public:
 	bool value{};
 };

@@ -28,9 +28,9 @@ namespace li
 {
 
 
-shared_ptr<Bool> Evaluator::bool_true = make_shared<Bool>(true);
-shared_ptr<Bool> Evaluator::bool_false = make_shared<Bool>(false);
-shared_ptr<Null> Evaluator::null = make_shared<Null>();
+const shared_ptr<Bool> Evaluator::bool_true = make_shared<Bool>(true);
+const shared_ptr<Bool> Evaluator::bool_false = make_shared<Bool>(false);
+const shared_ptr<Null> Evaluator::null = make_shared<Null>();
 
 shared_ptr<Bool> Evaluator::evaluate_bool(shared_ptr<BoolExpr> node)
 {
@@ -419,7 +419,7 @@ tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_o
 	for (int i = 0; i < fun->args->args.size(); i++)
 	{
 		auto id = fun->args->args.at(i);
-		env->add(id->value, objects.at(i));
+		env->add(id->value, objects.at(i)->copy());
 	}
 	return { nullptr, env };
 }

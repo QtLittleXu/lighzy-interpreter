@@ -16,6 +16,11 @@ public:
 		return value;
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<String>(*this);
+	}
+
 public:
 	string value;
 };

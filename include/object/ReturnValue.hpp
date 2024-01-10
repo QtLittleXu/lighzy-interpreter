@@ -16,6 +16,11 @@ public:
 		return value->inspect();
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<ReturnValue>(*this);
+	}
+
 public:
 	shared_ptr<Object> value;
 };

@@ -315,7 +315,8 @@ TEST(EvaluatorTest, evaluateIndex)
 		{ "let a = [1, 2, 3]; a[1] = 11", 11 },
 		{ "let a = [1, 2, 3]; a[1] = 11; a[1]", 11 },
 		{ "let a = [2, 4, 6]; a[2] += 12", 18 },
-		{ "let a = [2, 4, 6]; a[2] += 12; a[2]", 18 }
+		{ "let a = [2, 4, 6]; a[2] += 12; a[2]", 18 },
+		{ "let a = [1]; let change = fun(array) { array[0] = 11 }(a); a[0]", 1 }
 	};
 
 	for (const auto& [input, value] : tests)

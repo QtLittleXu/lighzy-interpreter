@@ -25,6 +25,11 @@ public:
 		return buffer.str();
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<Array>(*this);
+	}
+
 public:
 	vector<shared_ptr<Object>> elements;
 };

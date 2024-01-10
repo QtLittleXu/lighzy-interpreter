@@ -14,6 +14,11 @@ public:
 	{
 		return "null";
 	}
+
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<Null>(*this);
+	}
 };
 
 } // namespace li

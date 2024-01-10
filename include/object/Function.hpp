@@ -23,6 +23,11 @@ public:
 		return buffer.str();
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<Function>(*this);
+	}
+
 public:
 	shared_ptr<ArgumentsStat> args;
 	shared_ptr<BlockStat> body;

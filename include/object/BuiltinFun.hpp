@@ -20,6 +20,11 @@ public:
 		return inspectText;
 	}
 
+	shared_ptr<Object> copy() override
+	{
+		return make_shared<BuiltinFun>(*this);
+	}
+
 public:
 	built_in_fun fun;
 	string inspectText;

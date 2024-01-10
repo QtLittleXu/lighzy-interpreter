@@ -62,9 +62,9 @@ private:
 	shared_ptr<Object> evaluate_assign_index(shared_ptr<IndexExpr> expr, shared_ptr<Object> value, const string& operatorName, shared_ptr<Environment> env);
 
 public:
-	static shared_ptr<Bool> bool_true;
-	static shared_ptr<Bool> bool_false;
-	static shared_ptr<Null> null;
+	static const shared_ptr<Bool> bool_true;
+	static const shared_ptr<Bool> bool_false;
+	static const shared_ptr<Null> null;
 	static const map<string, shared_ptr<BuiltinFun>> builtinFuns;
 };
 
