@@ -38,6 +38,7 @@ public:
 	static shared_ptr<Object> invalid_arguments(const string& msg);
 	static shared_ptr<Object> index_operand_type(const string& left, const string& index);
 	static shared_ptr<Bool> bool_to_object(bool value);
+	static shared_ptr<Object> repeat_declaration(const string& name);
 
 private:
 	shared_ptr<Bool> evaluate_bool(shared_ptr<BoolExpr> node);

@@ -158,7 +158,8 @@ TEST(EvaluatorTest, evaluateError)
 		{ R"("Hello" - "world!")", "error - unknown infix operator: string - string" },
 		{ R"(let add = fun(a, b) { a + b }; add(1))", "error - invalid arguments: expected the number of them to be 2, but got 1" },
 		{ R"(_builtin_(1, "hello", "world!"))", "error - invalid arguments: expected the number of them to be 1, but got 2" },
-		{ R"(_builtin_(1, 12))", "error - invalid arguments: unknown function for argument type integer" }
+		{ R"(_builtin_(1, 12))", "error - invalid arguments: unknown function for argument type integer" },
+		{ R"(let a = 11; let a = 2)", "error - repeat declaration: a" }
 	};
 
 	for (const auto& [input, error] : tests)

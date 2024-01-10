@@ -161,6 +161,13 @@ shared_ptr<Object> Evaluator::index_operand_type(const string& left, const strin
 	return make_shared<Error>(buffer.str());
 }
 
+shared_ptr<Object> Evaluator::repeat_declaration(const string& name)
+{
+	stringstream buffer;
+	buffer << "error - repeat declaration: " << name;
+	return make_shared<Error>(buffer.str());
+}
+
 shared_ptr<Object> Evaluator::evaluate_prefix(const string& operatorName, shared_ptr<Object> right)
 {
 	if (operatorName == "!")
@@ -629,7 +636,14 @@ shared_ptr<Object> Evaluator::evaluate(shared_ptr<Node> node, shared_ptr<Environ
 			return value;
 		}
 
-		env->add(cast->name->value, value);
+		string name = cast->name->value;
+		auto found = env->store.find(name);
+		if (found != env->store.end())
+		{
+			return repeat_declaration(name);
+		}
+
+		env->add(name, value);
 		return null;
 	}
 
