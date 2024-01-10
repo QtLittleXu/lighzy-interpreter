@@ -75,8 +75,14 @@ shared_ptr<Object> BuiltinFuns::len(const vector<shared_ptr<Object>>& objs)
 	
 	case Object::Type::String:
 	{
-		auto value = dynamic_pointer_cast<String>(objs.at(0))->value;
-		return make_shared<Integer>(value.size());
+		auto cast = dynamic_pointer_cast<String>(objs.at(0));
+		return make_shared<Integer>(cast->value.size());
+	}
+
+	case Object::Type::Array:
+	{
+		auto cast = dynamic_pointer_cast<Array>(objs.at(0));
+		return make_shared<Integer>(cast->elements.size());
 	}
 
 	default:
