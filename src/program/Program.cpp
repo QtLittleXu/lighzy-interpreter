@@ -14,7 +14,8 @@ const filesystem::path Program::PREREAD_SOURCES_PATH = executable_path().parent_
 
 Program::Program(int argc, char* argv[]) :
 	_program(EXECUTABLE_NAME, PROJECT_VERSION),
-	_out(&cout)
+	_out(&cout),
+	_prereadEnv(make_shared<Environment>())
 {
 	_program.add_description(EXECUTABLE_DESCRIPTION);
 
@@ -34,6 +35,8 @@ Program::Program(int argc, char* argv[]) :
 	{
 		_argv.push_back(argv[i]);
 	}
+
+	parse_source(read_folder_sources(PREREAD_SOURCES_PATH), _prereadEnv, nullptr);
 }
 
 string Program::get_source_file_name()
@@ -47,7 +50,7 @@ string Program::get_source_file_name()
 	{
 		cerr << "No input source! \n";
 		cerr << _program;
-		exit(-1);
+		return "";
 	}
 	return fileName;
 }
@@ -71,14 +74,17 @@ int Program::run()
 	}
 
 	string fileName = get_source_file_name();
+	if (fileName.empty()) return -1;
+
 	string input = read_file(fileName);
+	if (input.empty()) return -1;
 
 	if (auto outFileName = _program.present("--output"))
 	{
 		change_write_file(outFileName.value());
 	}
 
-	parse_source(input, make_shared<Environment>());
+	parse_source(input, make_shared<Environment>(), _prereadEnv);
 	return 0;
 }
 
@@ -93,9 +99,9 @@ void Program::change_write_file(const string& fileName)
 	_out = &_outFile;
 }
 
-void Program::parse_source(const string& input, shared_ptr<Environment> env)
+void Program::parse_source(const string& input, shared_ptr<Environment> inner, shared_ptr<Environment> outer)
 {
-	auto lexer = make_shared<li::Lexer>(read_folder_sources(PREREAD_SOURCES_PATH) + input);
+	auto lexer = make_shared<li::Lexer>(input);
 	auto parser = make_shared<li::Parser>(lexer);
 	auto program = parser->parseProgram();
 
@@ -110,7 +116,8 @@ void Program::parse_source(const string& input, shared_ptr<Environment> env)
 	}
 
 	auto evaluator = make_shared<li::Evaluator>();
-	auto obj = evaluator->evaluate(program, env);
+	inner->outer = outer;
+	auto obj = evaluator->evaluate(program, inner);
 	
 	if (!obj || obj->type == Object::Type::Null)
 	{
@@ -133,7 +140,7 @@ string Program::read_file(const string& fileName)
 	if (!in)
 	{
 		cerr << "File \"" << fileName << "\" read failed! \n";
-		exit(-1);
+		return "";
 	}
 
 	while (getline(in, buffer))
@@ -161,7 +168,7 @@ string Program::read_folder_sources(const filesystem::path& folder)
         }
 
 		string fileName = entry.path().string();
-		sources += read_file(fileName);
+		sources += read_file(fileName) + ';';
 	}
 	return sources;
 }
@@ -171,7 +178,7 @@ int Program::repl()
 	string input;
 	const string PROMPT = ">> ";
 	auto env = make_shared<Environment>();
-	
+
 	cout << "Welcome to lighzy-interpreter! \n";
 	cout << PROMPT;
 	while (getline(cin, input))
@@ -181,7 +188,7 @@ int Program::repl()
 			break;
 		}
 
-		parse_source(input, env);
+		parse_source(input, env, _prereadEnv);
 		cout << PROMPT;
 	}
 

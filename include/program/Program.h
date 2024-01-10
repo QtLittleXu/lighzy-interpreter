@@ -25,7 +25,7 @@ private:
 	string read_folder_sources(const filesystem::path& folder);
 	void change_write_file(const string& fileName);
 	string get_source_file_name();
-	void parse_source(const string& input, shared_ptr<Environment> env);
+	void parse_source(const string& input, shared_ptr<Environment> inner, shared_ptr<Environment> outer);
 	int repl();
 
 private:
@@ -34,6 +34,7 @@ private:
 	argparse::ArgumentParser _program;
 	ostream* _out;
 	ofstream _outFile;
+	shared_ptr<Environment> _prereadEnv;
 };
 
 

@@ -158,7 +158,8 @@ TEST(EvaluatorTest, evaluateError)
 		{ R"("Hello" - "world!")", "error - unknown infix operator: string - string" },
 		{ R"(let add = fun(a, b) { a + b }; add(1))", "error - invalid arguments: expected the number of them to be 2, but got 1" },
 		{ R"(_builtin_(1, "hello", "world!"))", "error - invalid arguments: expected the number of them to be 1, but got 2" },
-		{ R"(_builtin_(1, 12))", "error - invalid arguments: unknown function for argument type integer" }
+		{ R"(_builtin_(1, 12))", "error - invalid arguments: unknown function for argument type integer" },
+		{ R"(let a = 11; let a = 2)", "error - repeat declaration: a" }
 	};
 
 	for (const auto& [input, error] : tests)
@@ -315,7 +316,8 @@ TEST(EvaluatorTest, evaluateIndex)
 		{ "let a = [1, 2, 3]; a[1] = 11", 11 },
 		{ "let a = [1, 2, 3]; a[1] = 11; a[1]", 11 },
 		{ "let a = [2, 4, 6]; a[2] += 12", 18 },
-		{ "let a = [2, 4, 6]; a[2] += 12; a[2]", 18 }
+		{ "let a = [2, 4, 6]; a[2] += 12; a[2]", 18 },
+		{ "let a = [1]; let change = fun(array) { array[0] = 11 }(a); a[0]", 1 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -351,7 +353,7 @@ TEST(EvaluatorTest, evaluateInDecrement)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-	testEqual(initEvaluator(input), make_shared<Integer>(value));
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 
