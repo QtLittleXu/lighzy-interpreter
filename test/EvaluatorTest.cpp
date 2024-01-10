@@ -352,7 +352,7 @@ TEST(EvaluatorTest, evaluateInDecrement)
 	for (const auto& [input, value] : tests)
 	{
 		SCOPED_TRACE(input);
-	testEqual(initEvaluator(input), make_shared<Integer>(value));
+		testEqual(initEvaluator(input), make_shared<Integer>(value));
 	}
 }
 

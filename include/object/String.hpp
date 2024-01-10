@@ -21,6 +21,11 @@ public:
 		return make_shared<String>(*this);
 	}
 
+	void assign(shared_ptr<Object> value) override
+	{
+		*this = *dynamic_pointer_cast<String>(value);
+	}
+
 public:
 	string value;
 };

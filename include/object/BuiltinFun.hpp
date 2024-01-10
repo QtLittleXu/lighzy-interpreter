@@ -25,6 +25,11 @@ public:
 		return make_shared<BuiltinFun>(*this);
 	}
 
+	void assign(shared_ptr<Object> value) override
+	{
+		*this = *dynamic_pointer_cast<BuiltinFun>(value);
+	}
+
 public:
 	built_in_fun fun;
 	string inspectText;

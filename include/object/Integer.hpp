@@ -20,6 +20,11 @@ public:
 	{
 		return make_shared<Integer>(*this);
 	}
+
+	void assign(shared_ptr<Object> value) override
+	{
+		*this = *dynamic_pointer_cast<Integer>(value);
+	}
 	
 public:
 	int64_t value;

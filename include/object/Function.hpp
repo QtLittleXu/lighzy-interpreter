@@ -28,6 +28,11 @@ public:
 		return make_shared<Function>(*this);
 	}
 
+	void assign(shared_ptr<Object> value) override
+	{
+		*this = *dynamic_pointer_cast<Function>(value);
+	}
+
 public:
 	shared_ptr<ArgumentsStat> args;
 	shared_ptr<BlockStat> body;

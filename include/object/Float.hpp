@@ -23,6 +23,11 @@ public:
 		return make_shared<Float>(*this);
 	}
 
+	void assign(shared_ptr<Object> value) override
+	{
+		*this = *dynamic_pointer_cast<Float>(value);
+	}
+
 public:
 	double value;
 };

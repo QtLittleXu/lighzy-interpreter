@@ -17,6 +17,7 @@ public:
 public:
 	virtual string inspect() const = 0;
 	virtual shared_ptr<Object> copy() = 0;
+	virtual void assign(shared_ptr<Object> value) = 0;
 
 public:
 	Object(Type type) : type(type) {}

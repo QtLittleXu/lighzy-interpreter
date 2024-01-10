@@ -20,6 +20,11 @@ public:
 		return make_shared<Error>(*this);
 	}
 
+	void assign(shared_ptr<Object> value) override
+	{
+		*this = *dynamic_pointer_cast<Error>(value);
+	}
+
 public:
 	string message;
 };

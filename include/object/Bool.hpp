@@ -21,6 +21,11 @@ public:
 		return make_shared<Bool>(*this);
 	}
 
+	void assign(shared_ptr<Object> value) override
+	{
+		*this = *dynamic_pointer_cast<Bool>(value);
+	}
+
 public:
 	bool value{};
 };

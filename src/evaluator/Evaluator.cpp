@@ -476,132 +476,61 @@ shared_ptr<Object> Evaluator::evaluate_index_array(shared_ptr<Array> array, shar
 	return array->elements.at(index->value);
 }
 
-shared_ptr<Object> Evaluator::evaluate_in_decrement(const string& id, const string& operatorName, shared_ptr<Environment> env)
+shared_ptr<Object> Evaluator::evaluate_in_decrement(shared_ptr<Object> id, const string& operatorName, shared_ptr<Environment> env)
 {
-	auto value = *env->get(id);
 	if (operatorName == "++")
 	{
-		switch (value->type)
+		switch (id->type)
 		{
 
 		case Object::Type::Integer:
 		{
-			auto cast = dynamic_pointer_cast<Integer>(value);
+			auto cast = dynamic_pointer_cast<Integer>(id);
 			cast->value++;
 			return cast;
 		}
 
 		default:
-			return operand_type_error("increment or decrement", operatorName, value->typeName());
+			return operand_type_error("increment or decrement", operatorName, id->typeName());
 		}
 	}
 
 	if (operatorName == "--")
 	{
-		switch (value->type)
+		switch (id->type)
 		{
 
 		case Object::Type::Integer:
 		{
-			auto cast = dynamic_pointer_cast<Integer>(value);
+			auto cast = dynamic_pointer_cast<Integer>(id);
 			cast->value--;
 			return cast;
 		}
 
 		default:
-			return operand_type_error("increment or decrement", operatorName, value->typeName());
+			return operand_type_error("increment or decrement", operatorName, id->typeName());
 		}
 	}
 
-	return unknown_prefix(operatorName, value->typeName());
+	return unknown_prefix(operatorName, id->typeName());
 }
 
-shared_ptr<Object> Evaluator::evaluate_assign(shared_ptr<AssignExpr> expr, shared_ptr<Object> value, shared_ptr<Environment> env)
+shared_ptr<Object> Evaluator::evaluate_assign(shared_ptr<Object> id, const string& operatorName, shared_ptr<Object> value, shared_ptr<Environment> env)
 {
-	switch (expr->id->type)
-	{
-	
-	case Node::Type::Index:
-		return evaluate_assign_index(dynamic_pointer_cast<IndexExpr>(expr->id), value, expr->operatorName, env);
-
-	case Node::Type::Identifier:
-	{
-		string name = dynamic_pointer_cast<IdentifierExpr>(expr->id)->value;
-		auto& id = *env->get(name);
-
-		if (expr->operatorName == "=")
-		{
-			return id = value;
-		}
-		if (expr->operatorName == "+=")
-		{
-			return id = evaluate_infix(id, "+", value);
-		}
-		if (expr->operatorName == "-=")
-		{
-			return id = evaluate_infix(id, "-", value);
-		}
-		if (expr->operatorName == "*=")
-		{
-			return id = evaluate_infix(id, "*", value);
-		}
-		if (expr->operatorName == "/=")
-		{
-			return id = evaluate_infix(id, "/", value);
-		}
-		if (expr->operatorName == "%=")
-		{
-			return id = evaluate_infix(id, "%", value);
-		}
-
-		return operand_type_error("assign", expr->operatorName, value->typeName());
-	}
-
-	default:
-		return null;
-
-	}
-}
-
-shared_ptr<Object> Evaluator::evaluate_assign_index(shared_ptr<IndexExpr> expr, shared_ptr<Object> value, const string& operatorName, shared_ptr<Environment> env)
-{
-	auto array = dynamic_pointer_cast<Array>(*env->get(expr->left->literal()));
-	auto left = evaluate(expr->index, env);
-
-	if (left->type == Object::Type::Error)
-	{
-		return left;
-	}
-
-	auto index = dynamic_pointer_cast<Integer>(left)->value;
-	auto& id = array->elements.at(index);
-
 	if (operatorName == "=")
 	{
-		return id = value;
+		id->assign(value);
+		return value;
 	}
-	if (operatorName == "+=")
+	
+	if (operatorName.size() != 2)
 	{
-		return id = evaluate_infix(id, "+", value);
-	}
-	if (operatorName == "-=")
-	{
-		return id = evaluate_infix(id, "-", value);
-	}
-	if (operatorName == "*=")
-	{
-		return id = evaluate_infix(id, "*", value);
-	}
-	if (operatorName == "/=")
-	{
-		return id = evaluate_infix(id, "/", value);
-	}
-	if (operatorName == "%=")
-	{
-		return id = evaluate_infix(id, "%", value);
+		return unknown_infix(id->typeName(), operatorName, value->typeName());
 	}
 
-	return operand_type_error("assign", operatorName, value->typeName());
+	auto result = evaluate_infix(id, string(1, operatorName.at(0)), value);
+	id->assign(result);
+	return result;
 }
 
 shared_ptr<Object> Evaluator::evaluate(shared_ptr<Node> node, shared_ptr<Environment> env)
@@ -754,8 +683,7 @@ shared_ptr<Object> Evaluator::evaluate(shared_ptr<Node> node, shared_ptr<Environ
 			return value;
 		}
 
-		// Where bugs occur: segment fault when the id of the AssignExor is IndexExpr
-		return evaluate_assign(cast, value, env);
+		return evaluate_assign(id, cast->operatorName, value, env);
 	}
 
 	case Node::Type::Array:
@@ -807,8 +735,7 @@ shared_ptr<Object> Evaluator::evaluate(shared_ptr<Node> node, shared_ptr<Environ
 			return id;
 		}
 
-		string name = dynamic_pointer_cast<IdentifierExpr>(cast->id)->value;
-		return evaluate_in_decrement(name, cast->operatorName, env);
+		return evaluate_in_decrement(id, cast->operatorName, env);
 	}
 
 	default:

@@ -57,9 +57,8 @@ private:
 	vector<shared_ptr<Object>> evaluate_exprs(shared_ptr<ExpressionsStat> exprs, shared_ptr<Environment> env);
 	shared_ptr<Object> evaluate_index(shared_ptr<Object> left, shared_ptr<Object> index);
 	shared_ptr<Object> evaluate_index_array(shared_ptr<Array> array, shared_ptr<Integer> index);
-	shared_ptr<Object> evaluate_in_decrement(const string& id, const string& operatorName, shared_ptr<Environment> env);
-	shared_ptr<Object> evaluate_assign(shared_ptr<AssignExpr> expr, shared_ptr<Object> value, shared_ptr<Environment> env);
-	shared_ptr<Object> evaluate_assign_index(shared_ptr<IndexExpr> expr, shared_ptr<Object> value, const string& operatorName, shared_ptr<Environment> env);
+	shared_ptr<Object> evaluate_in_decrement(shared_ptr<Object> id, const string& operatorName, shared_ptr<Environment> env);
+	shared_ptr<Object> evaluate_assign(shared_ptr<Object> id, const string& operatorName, shared_ptr<Object> value, shared_ptr<Environment> env);
 
 public:
 	static const shared_ptr<Bool> bool_true;
