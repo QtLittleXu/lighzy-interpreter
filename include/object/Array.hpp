@@ -39,7 +39,17 @@ public:
 	{
 		for (const auto& element : dynamic_pointer_cast<Array>(value)->elements)
 		{
+			element->isMutable = isMutable;
 			elements.push_back(element);
+		}
+	}
+
+	void setMutable(bool isMutable) override
+	{
+		Object::setMutable(isMutable);
+		for (auto& element : elements)
+		{
+			element->setMutable(isMutable);
 		}
 	}
 

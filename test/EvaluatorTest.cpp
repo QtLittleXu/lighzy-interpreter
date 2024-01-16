@@ -159,7 +159,9 @@ TEST(EvaluatorTest, evaluateError)
 		{ R"(let add = fun(a, b) { a + b }; add(1))", "error - invalid arguments: expected the number of them to be 2, but got 1" },
 		{ R"(_builtin_(1, "hello", "world!"))", "error - invalid arguments: expected the number of them to be 1, but got 2" },
 		{ R"(_builtin_(1, 12))", "error - invalid arguments: unknown function for argument type integer" },
-		{ R"(let a = 11; let a = 2)", "error - repeat declaration: a" }
+		{ R"(let a = 11; let a = 2)", "error - repeat declaration: a" },
+		{ R"(let b = 1; b = 3)", "error - cannot access immutable variable: b" },
+		{ R"(var c = 12; var c = 1)", "error - repeat declaration: c" }
 	};
 
 	for (const auto& [input, error] : tests)
@@ -169,7 +171,7 @@ TEST(EvaluatorTest, evaluateError)
 	}
 }
 
-TEST(EvaluatorTest, evaluateLet)
+TEST(EvaluatorTest, evaluateDeclaration)
 {
 	struct Expected
 	{
@@ -179,7 +181,11 @@ TEST(EvaluatorTest, evaluateLet)
 		{ "let a = 1; a", 1 },
 		{ "let a = 5 * 5; a", 25 },
 		{ "let a = 2; let b = a; b", 2 },
-		{ "let a = 11; let b = 22; let c = a + b - 1; c", 32 }
+		{ "let a = 11; let b = 22; let c = a + b - 1; c", 32 },
+		{ "var a = 1; a", 1 },
+		{ "var a = 5 * 5; a", 25 },
+		{ "var a = 2; var b = a; b", 2 },
+		{ "var a = 11; var b = 22; var c = a + b - 1; c", 32 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -248,21 +254,21 @@ TEST(EvaluatorTest, evaluateAssign)
 		string input;
 		int64_t value;
 	} tests[] = {
-		{ "let num = 11; num = 1", 1 },
-		{ "let temp = 0; temp = 2; temp", 2 },
-		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4;", 4 },
-		{ "let n1 = 1; let n2 = 2; n2 = n1 = 4; n1;", 4 },
-		{ "let dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 },
-		{ "let a = 12; a += 2", 14 },
-		{ "let a = 12; a += 2; a", 14 },
-		{ "let a = 12; a -= 2", 10 },
-		{ "let a = 12; a -= 2; a", 10 },
-		{ "let a = 12; a *= 2", 24 },
-		{ "let a = 12; a *= 2; a", 24 },
-		{ "let a = 12; a /= 2", 6 },
-		{ "let a = 12; a /= 2; a", 6 },
-		{ "let a = 12; a %= 5", 2 },
-		{ "let a = 12; a %= 5; a", 2 }
+		{ "var num = 11; num = 1", 1 },
+		{ "var temp = 0; temp = 2; temp", 2 },
+		{ "var n1 = 1; var n2 = 2; n2 = n1 = 4;", 4 },
+		{ "var n1 = 1; var n2 = 2; n2 = n1 = 4; n1;", 4 },
+		{ "var dontChange = 12; fun(dontChange) { dontChange = 1 }(0); dontChange", 12 },
+		{ "var a = 12; a += 2", 14 },
+		{ "var a = 12; a += 2; a", 14 },
+		{ "var a = 12; a -= 2", 10 },
+		{ "var a = 12; a -= 2; a", 10 },
+		{ "var a = 12; a *= 2", 24 },
+		{ "var a = 12; a *= 2; a", 24 },
+		{ "var a = 12; a /= 2", 6 },
+		{ "var a = 12; a /= 2; a", 6 },
+		{ "var a = 12; a %= 5", 2 },
+		{ "var a = 12; a %= 5; a", 2 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -313,11 +319,11 @@ TEST(EvaluatorTest, evaluateIndex)
 		{ "[2, 4, 6][2]", 6 },
 		{ "let array = [2, 4, 6]; array[2]", 6 },
 		{ "let array = [2, 4, 6]; let sum = array[1] + array[2]; sum", 10 },
-		{ "let a = [1, 2, 3]; a[1] = 11", 11 },
-		{ "let a = [1, 2, 3]; a[1] = 11; a[1]", 11 },
-		{ "let a = [2, 4, 6]; a[2] += 12", 18 },
-		{ "let a = [2, 4, 6]; a[2] += 12; a[2]", 18 },
-		{ "let a = [1]; let change = fun(array) { array[0] = 11 }(a); a[0]", 1 }
+		{ "var a = [1, 2, 3]; a[1] = 11", 11 },
+		{ "var a = [1, 2, 3]; a[1] = 11; a[1]", 11 },
+		{ "var a = [2, 4, 6]; a[2] += 12", 18 },
+		{ "var a = [2, 4, 6]; a[2] += 12; a[2]", 18 },
+		{ "var a = [1]; fun(array) { array[0] = 11 }(a); a[0]", 1 }
 	};
 
 	for (const auto& [input, value] : tests)
@@ -333,7 +339,7 @@ TEST(EvaluatorTest, evaluateIndex)
 
 TEST(EvaluatorTest, evaluateWhile)
 {
-	string input = "let sum = 0; let index = 1; while (index <= 100) { sum = sum + index; index = index + 1 }; sum";
+	string input = "var sum = 0; var index = 1; while (index <= 100) { sum = sum + index; index = index + 1 }; sum";
 	testEqual(initEvaluator(input), make_shared<Integer>(5050));
 }
 
@@ -344,10 +350,10 @@ TEST(EvaluatorTest, evaluateInDecrement)
 		string input;
 		int64_t value;
 	} tests[] = {
-		{ "let a = 12; ++a", 13 },
-		{ "let a = 3; --a", 2 },
-		{ "let a = 19; ++a; a", 20 },
-		{ "let a = 6; --a; a", 5 }
+		{ "var a = 12; ++a", 13 },
+		{ "var a = 3; --a", 2 },
+		{ "var a = 19; ++a; a", 20 },
+		{ "var a = 6; --a; a", 5 }
 	};
 
 	for (const auto& [input, value] : tests)
