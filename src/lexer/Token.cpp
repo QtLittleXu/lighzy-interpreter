@@ -43,6 +43,7 @@ const map<Token::Type, string> Token::typeNames =
 	{ Decrement,		"decrement(\"--\")" },
 
 	{ Let,				"let" },
+	{ Var,				"var" },
 	{ Fun,				"fun" },
 	{ True,				"true" },
 	{ False,			"false" },

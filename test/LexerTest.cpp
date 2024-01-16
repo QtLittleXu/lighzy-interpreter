@@ -7,7 +7,7 @@ namespace li::test
 
 TEST(LexerTest, parseToken)
 {
-    Lexer lexer("@identifierString;,(){}12345[]\"Hello world!\"977.21= == != > >= < <=!+-*/% += -= *= /= %=++--let fun true false if else return while");
+	Lexer lexer("@identifierString;,(){}12345[]\"Hello world!\"977.21= == != > >= < <=!+-*/% += -= *= /= %=++--let var fun true false if else return while");
 
 	struct
 	{
@@ -16,29 +16,29 @@ TEST(LexerTest, parseToken)
 	} tests[] = {
 		{ Token::Illegal,			"@" },
 		{ Token::Identifier,		"identifierString" },
-        { Token::Semicolon,			";" },
-        { Token::Comma,				"," },
-        { Token::LParen,			"(" },
-        { Token::RParen,			")" },
-        { Token::LBrace,			"{" },
-        { Token::RBrace,			"}" },
-        { Token::Integer,			"12345" },
+		{ Token::Semicolon,			";" },
+		{ Token::Comma,				"," },
+		{ Token::LParen,			"(" },
+		{ Token::RParen,			")" },
+		{ Token::LBrace,			"{" },
+		{ Token::RBrace,			"}" },
+		{ Token::Integer,			"12345" },
 		{ Token::LBracket,			"[" },
 		{ Token::RBracket,			"]" },
 		{ Token::String,			"Hello world!" },
 		{ Token::Float,				"977.21" },
-        { Token::Assign,			"=" },
+		{ Token::Assign,			"=" },
 		{ Token::Equal,				"==" },
 		{ Token::NotEqual,			"!=" },
-        { Token::Greater,			">" },
-        { Token::GreaterEqual,		">=" },
-        { Token::Less,				"<" },
-        { Token::LessEqual,			"<=" },
-        { Token::LogicalNegation,	"!" },
-        { Token::Plus,				"+" },
-        { Token::Minus,				"-"},
-        { Token::Asterisk,			"*" },
-        { Token::Slash,				"/" },
+		{ Token::Greater,			">" },
+		{ Token::GreaterEqual,		">=" },
+		{ Token::Less,				"<" },
+		{ Token::LessEqual,			"<=" },
+		{ Token::LogicalNegation,	"!" },
+		{ Token::Plus,				"+" },
+		{ Token::Minus,				"-"},
+		{ Token::Asterisk,			"*" },
+		{ Token::Slash,				"/" },
 		{ Token::Modulus,			"%" },
 		{ Token::AddAssign,			"+=" },
 		{ Token::SubAssign,			"-=" },
@@ -48,6 +48,7 @@ TEST(LexerTest, parseToken)
 		{ Token::Increment,			"++" },
 		{ Token::Decrement,			"--" },
 		{ Token::Let,				"let" },
+		{ Token::Var,				"var" },
 		{ Token::Fun,				"fun" },
 		{ Token::True,				"true" },
 		{ Token::False,				"false" },
@@ -56,7 +57,7 @@ TEST(LexerTest, parseToken)
 		{ Token::Return,			"return" },
 		{ Token::While,				"while" },
 		{ Token::Eof,				"" }
-    };
+	};
 	int i = 0;
 	for (const auto& [expectedType, expectedLiteral] : tests)
 	{

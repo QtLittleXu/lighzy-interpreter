@@ -30,7 +30,7 @@ public:
 		Increment, Decrement,
 
 		// keywords
-		Let, Fun, True, False, If, Else, Return, While
+		Let, Var, Fun, True, False, If, Else, Return, While
 	};
 
 public:
