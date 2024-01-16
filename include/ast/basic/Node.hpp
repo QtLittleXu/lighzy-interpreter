@@ -15,7 +15,7 @@ public:
     enum class Type
     {
         Program, Expr, Stat,
-        Let, Return, Arguments, Exprs, Block,
+        Let, Var, Return, Arguments, Exprs, Block,
         Call, Function, ExprStat, Identifier,
         Integer, Float, Bool, Infix, Prefix, If, String, Assign, InDecrement,
         Array, Index, While

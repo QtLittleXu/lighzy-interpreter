@@ -20,7 +20,7 @@ public:
 	virtual void assign(shared_ptr<Object> value) = 0;
 
 public:
-	Object(Type type) : type(type) {}
+	Object(Type type) : type(type), isMutable(false) {}
 
 	static string typeName(Type type)
 	{
@@ -37,8 +37,14 @@ public:
 		return typeName(type);
 	}
 
+	virtual void setMutable(bool isMutable)
+	{
+		this->isMutable = isMutable;
+	}
+
 public:
 	Type type;
+	bool isMutable;
 	static const map<Type, string> typeNames;
 };
 

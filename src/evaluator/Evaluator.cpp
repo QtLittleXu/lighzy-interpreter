@@ -22,6 +22,7 @@
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
 #include "ast/WhileStat.hpp"
+#include "ast/VarStat.hpp"
 #include "ast/InDecrementExpr.hpp"
 
 namespace li
@@ -165,6 +166,13 @@ shared_ptr<Object> Evaluator::repeat_declaration(const string& name)
 {
 	stringstream buffer;
 	buffer << "error - repeat declaration: " << name;
+	return make_shared<Error>(buffer.str());
+}
+
+shared_ptr<Object> Evaluator::access_immutable_var(const string &name)
+{
+	stringstream buffer;
+	buffer << "error - cannot access immutable variable: " << name;
 	return make_shared<Error>(buffer.str());
 }
 
@@ -426,7 +434,9 @@ tuple<shared_ptr<Object>, shared_ptr<Environment>> Evaluator::bind_fun_args_to_o
 	for (int i = 0; i < fun->args->args.size(); i++)
 	{
 		auto id = fun->args->args.at(i);
-		env->add(id->value, objects.at(i)->copy());
+		auto copied = objects.at(i)->copy();
+		copied->setMutable(true);
+		env->add(id->value, copied);
 	}
 	return { nullptr, env };
 }
@@ -526,7 +536,9 @@ shared_ptr<Object> Evaluator::evaluate_assign(shared_ptr<Object> id, const strin
 {
 	if (operatorName == "=")
 	{
+		bool origin = id->isMutable;
 		id->assign(value);
+		id->isMutable = origin;
 		return value;
 	}
 	
@@ -536,7 +548,10 @@ shared_ptr<Object> Evaluator::evaluate_assign(shared_ptr<Object> id, const strin
 	}
 
 	auto result = evaluate_infix(id, string(1, operatorName.at(0)), value);
+
+	bool origin = id->isMutable;
 	id->assign(result);
+	id->isMutable = origin;
 	return result;
 }
 
@@ -643,6 +658,28 @@ shared_ptr<Object> Evaluator::evaluate(shared_ptr<Node> node, shared_ptr<Environ
 			return repeat_declaration(name);
 		}
 
+		value->setMutable(false);
+		env->add(name, value);
+		return null;
+	}
+
+	case Node::Type::Var:
+	{
+		auto cast = dynamic_pointer_cast<VarStat>(node);
+		auto value = evaluate(cast->value, env);
+		if (value->type == Object::Type::Error)
+		{
+			return value;
+		}
+
+		string name = cast->name->value;
+		auto found = env->store.find(name);
+		if (found != env->store.end())
+		{
+			return repeat_declaration(name);
+		}
+
+		value->setMutable(true);
 		env->add(name, value);
 		return null;
 	}
@@ -695,6 +732,10 @@ shared_ptr<Object> Evaluator::evaluate(shared_ptr<Node> node, shared_ptr<Environ
 		if (value->type == Object::Type::Error)
 		{
 			return value;
+		}
+		if (!id->isMutable)
+		{
+			return access_immutable_var(cast->id->literal());
 		}
 
 		return evaluate_assign(id, cast->operatorName, value, env);

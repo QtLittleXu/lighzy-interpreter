@@ -8,6 +8,7 @@
 #include "ast/ArgumentsStat.hpp"
 #include "ast/ExpressionsStat.hpp"
 #include "ast/WhileStat.hpp"
+#include "ast/VarStat.hpp"
 #include <functional>
 
 namespace li
@@ -48,7 +49,7 @@ private:
 	// functions of parsing
 	shared_ptr<Stat> parse_statement();
 	shared_ptr<Stat> parse_expr_stat();
-	shared_ptr<LetStat> parse_let_stat();
+	shared_ptr<Stat> parse_declaration_stat();
 	shared_ptr<ReturnStat> parse_return_stat();
 	shared_ptr<BlockStat> parse_block_stat();
 	shared_ptr<WhileStat> parse_while_stat();
