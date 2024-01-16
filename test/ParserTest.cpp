@@ -14,6 +14,7 @@
 #include "ast/ArrayExpr.hpp"
 #include "ast/IndexExpr.hpp"
 #include "ast/WhileStat.hpp"
+#include "ast/VarStat.hpp"
 #include "ast/InDecrementExpr.hpp"
 #include "initialization.h"
 
@@ -244,6 +245,33 @@ TEST(ParserTest, LetStat)
 		ASSERT_TRUE(statement);
 
 		ASSERT_NO_FATAL_FAILURE(testLetStatement(statement, expectedName, expectedValue));
+	}
+}
+
+TEST(ParserTest, VarTest)
+{
+	struct Expected
+	{
+		string input;
+		string name;
+		string value;
+	} tests[] = {
+		{ "var a = 12", "a", "12" },
+		{ "var b = a + 1", "b", "(a + 1)" }
+	};
+
+	for (const auto& [input, expectedName, expectedValue] : tests)
+	{
+		SCOPED_TRACE(input);
+
+		shared_ptr<Program> program;
+		ASSERT_NO_FATAL_FAILURE(initParser(program, input, 1));
+
+		auto stat = dynamic_pointer_cast<VarStat>(program->statements.at(0));
+		ASSERT_TRUE(stat);
+
+		EXPECT_EQ(stat->name->value, expectedName);
+		EXPECT_EQ(stat->value->toString(), expectedValue);
 	}
 }
 

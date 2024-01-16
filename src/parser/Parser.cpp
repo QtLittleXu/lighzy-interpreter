@@ -115,7 +115,8 @@ shared_ptr<Stat> Parser::parse_statement()
 		return nullptr;
 
 	case Token::Let:
-		return parse_let_stat();
+	case Token::Var:
+		return parse_declaration_stat();
 
 	case Token::Return:
 		return parse_return_stat();
@@ -175,19 +176,39 @@ shared_ptr<Expr> Parser::parse_expr(PrecedenceType precedence)
 	return leftExpr;
 }
 
-shared_ptr<LetStat> Parser::parse_let_stat()
+shared_ptr<Stat> Parser::parse_declaration_stat()
 {
-    auto stat = make_shared<LetStat>(_current);
-	parse_token();
-	if (expect_token_type(Token::Identifier)) return nullptr;
-	stat->name = dynamic_pointer_cast<IdentifierExpr>(parse_identifier());
+	if (_current->type == Token::Let)
+	{
+		auto stat = make_shared<LetStat>(_current);
+		parse_token();
+		if (expect_token_type(Token::Identifier)) return nullptr;
+		stat->name = dynamic_pointer_cast<IdentifierExpr>(parse_identifier());
 	
-	if(expect_token_type(Token::Assign)) return nullptr;
+		if(expect_token_type(Token::Assign)) return nullptr;
+		parse_token();
 
-	parse_token();
-	stat->value = parse_expr(Lowest);
+		stat->value = parse_expr(Lowest);
 
-	return stat;
+		return stat;
+	}
+	
+	if (_current->type == Token::Var)
+	{
+		auto stat = make_shared<VarStat>(_current);
+		parse_token();
+		if (expect_token_type(Token::Identifier)) return nullptr;
+		stat->name = dynamic_pointer_cast<IdentifierExpr>(parse_identifier());
+	
+		if(expect_token_type(Token::Assign)) return nullptr;
+		parse_token();
+
+		stat->value = parse_expr(Lowest);
+
+		return stat;
+	}
+
+	return nullptr;
 }
 
 shared_ptr<ReturnStat> Parser::parse_return_stat()
