@@ -1,0 +1,8 @@
+#pragma once
+
+#define PREREAD_SOURCES_DIR "${PREREAD_SOURCES_DIR}"
+
+#define PROJECT_VERSION "${PROJECT_VERSION}"
+#define EXECUTABLE_NAME "${LI_EXECUTABLE}"
+
+#define EXECUTABLE_DESCRIPTION "lighzy-interpreter is a simple interpreter for Lighzy language"
