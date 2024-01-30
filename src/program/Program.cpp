@@ -176,7 +176,7 @@ string Program::read_folder_sources(const filesystem::path& folder)
 int Program::repl()
 {
 	string input;
-	const string PROMPT = ">> ";
+	const string PROMPT = ">>> ";
 	auto env = make_shared<Environment>();
 
 	cout << "Welcome to lighzy-interpreter! \n";
