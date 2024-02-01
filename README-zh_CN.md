@@ -1,37 +1,37 @@
-# lighzy-interpreter
+# Lighzy 解释器
 
-## Translations
+## 翻译
 
 [English](README.md)  
 [中文](README-zh_CN.md)  
 
-## Introduction
+## 介绍
 
-lighzy-interpreter is a cross-platform interpreter in C++ for lighzy language. [Lighzy](https://github.com/QtLittleXu/Lighzy) is dynamic, strongly typed and interpreted simple programming language by me. I created the project 2 months ago to improve my programming skills. Now I have finished the most of the features. I am considering to support for oriented-programming. It is really difficult to implement.
+lighzy-interpreter 是专门用来解释 Lighzy 语言的跨平台解释器，其通过对源代码一行一行地解释以实现运行。
 
-## Build & Run & Test
+## 构建、运行和测试
 
-### Required Environments
+### 环境
 
-The project is building by CMake. You need to install the following libraries, or use package managers such as vcpkg to install them simpler:
+本项目使用 CMake 构建系统，需要安装以下库，或使用像 vcpkg 这样的包管理工具安装：
 
 - argparse (required, for arguments parsing)
 - gtest (optional, for test)
 
-### Build
+### 构建
 
-Run these commands to start building release version:
+在命令行运行以下命令构建：
 
 ```shell
 cmake -B build -S . -D BUILD_TYPE=Release -D BUILD_TEST=ON
 cmake --build build --config Release
 ```
 
-You can find the compiled executable file `li` in the folder `build/bin` at the end of building.
+最终在 `build/bin` 目录中生成解释器的可执行文件 `li`。
 
-### Run & Use
+### 运行
 
-Jump to the folder `build/bin` and run `./li --help` to get help:
+跳转到 `build/bin` 目录，执行 `./li --help` 获取帮助：
 
 ```shell
 > ./li --help
@@ -49,7 +49,7 @@ Optional arguments:
 	-o, --output   specify the output file, the default is standard output
 ```
 
-Run `./li --repl` to start executing in REPL (Read-Evaluate-Print-Loop) mode:
+执行 `./li --repl` 进入行对行解释模式：
 
 ```shell
 > ./li --repl
@@ -67,7 +67,7 @@ Hello world!
 >>> exit
 ```
 
-Run `./li input.li` to interpret the input file:
+执行 `./li input.li` 解释输入文件：
 
 ```shell
 > cat test.li
@@ -100,9 +100,9 @@ println(sorted)
 [-21, -12, 9, 11, 12, 16, 32, 63, 85]
 ```
 
-### Test
+## 测试
 
-Run `ctest` in the folder `build` to start testing:
+跳转到 `build` 目录，执行 `ctest` 开始测试：
 
 ```shell
 > cd build
@@ -192,44 +192,44 @@ Test project /home/qtlittlexu/Documents/CMake Projects/lighzy-interpreter/build/
 Total Test time (real) =   0.06 sec
 ```
 
-## Development Progress
+## 开发进度
 
-In developing, have finished:
+正在开发，尽请期待，已完成：
 
-### Expressions
+### 表达式
 
-- Prefix Expression
-- Infix Expression
-- If Statement
-- Function
-- Assignment
+- 前缀
+- 中缀
+- if 判断
+- 函数
+- 赋值
 
-### Statements
+### 语句
 
-- Variable Declaration
-- Return Value
-- While Statement
+- 变量定义
+- 返回值
+- While 循环
 
-### Types of Data
+### 数据类型
 
-- Integer
-- Float
-- Boolean
-- String
-- Array
+- 整数
+- 浮点数
+- 布尔
+- 字符串
+- 数组
 
-### Standard Libraries
+### 标准库
 
-- `print(obj)`: Print object `obj` on the screen
-- `println(obj)`: Print object `obj` and linebreak on the screen
+- `print(obj)`: 打印 `obj` 对象到屏幕上
+- `println(obj)`: 打印 `obj` 对象到屏幕上并换行
 - `len(obj)`:
-    - `obj: string`: Return the length of string `obj`
-    - `obj: array`: Return the length of array `obj`
+	- `obj: string`: 返回 `obj` 字符串的长度
+	- `obj: array`: 返回 `obj` 数组的长度
 
-## Contributing
+## 贡献
 
-Welcome to create issues and pull requests for the project. I am sooo happy to see it!
+欢迎为这个项目提交 PR 或 issue，我会非常高兴看到它！
 
-## License
+## 许可协议
 
-The project is licensed under MIT license. See also [LICENSE](LICENSE).
+该项目在 MIT 协议下分发，另见 [LICENSE](LICENSE)。
